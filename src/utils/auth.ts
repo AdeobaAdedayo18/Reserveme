@@ -17,16 +17,17 @@ export const loginUser = async (formData: { password: string; email: string }) =
             throw new Error('Login failed');
         }
 
-        const { access_token, refresh_token, username, user_id } = response.data;
+        const { access_token, refresh_token, username, user_id, role } = response.data;
 
         Cookies.set("access_token", access_token, COOKIE_OPTIONS);
         Cookies.set("refresh_token", refresh_token, COOKIE_OPTIONS);
         Cookies.set("username", username, { ...COOKIE_OPTIONS, httpOnly: false });
         Cookies.set("user_id",user_id, { ...COOKIE_OPTIONS, httpOnly: false });
+        Cookies.set("role",role, { ...COOKIE_OPTIONS, httpOnly: false });
 
         return { success: true };
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: error };
     }
 };
 

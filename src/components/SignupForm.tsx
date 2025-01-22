@@ -22,15 +22,16 @@ const SignupForm = () => {
   const onsubmit = async (data: FormData) => {
     console.log(data);
     reset();
-    // try {
-    //   await registerUser(data);
+    try {
+      await registerUser(data);
 
-    //   alert("Registration successful");
-    // } catch (error: any) {
-    //   if (error.message) {
-    //     alert(error.message);
-    //   }
-    // }
+      alert("Registration successful");
+      navigate("/locations");
+    } catch (error: any) {
+      if (error.message) {
+        alert(error.message);
+      }
+    }
   };
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">

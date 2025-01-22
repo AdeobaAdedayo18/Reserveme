@@ -32,14 +32,15 @@ const LoginForm = () => {
     try {
       const response = await loginUser(data);
       response.detail == "Invalid Credentials"
-        ? alert("Registration successful")
+        ? alert("Login unsuccessful")
         : alert("Login successful");
     } catch (error: any) {
       if (error.message) {
         alert(error.message);
       }
     }
-    navigate("/locations");
+    const { role } = await getSession();
+    role === "user" ? navigate("/locations") : navigate("/admin-dashboard");
   };
   return (
     <>

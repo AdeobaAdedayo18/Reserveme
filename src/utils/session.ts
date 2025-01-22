@@ -17,6 +17,7 @@ export const getSession = async () => {
     console.log(username);
     
     const user_id = Cookies.get('user_id');
+    const role = Cookies.get('role');
     console.log(user_id);
     
 
@@ -31,7 +32,7 @@ export const getSession = async () => {
         }
     }
 
-    return { access_token, username, user_id };
+    return { access_token, username, user_id, role };
 };
 
 

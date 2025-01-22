@@ -7,6 +7,7 @@ import LocationDetail1 from "./pages/LocationDetail1";
 import ReceiptPage from "./pages/ReceiptPage";
 import { StartPage } from "./pages/test";
 import LandingPage from "./pages/LandingPage";
+import AdminDashboard from "./pages/AdminDashboard";
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +21,10 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <LandingPage />,
+  },
+  {
+    path: "/admin",
+    element: <AdminDashboard />,
   },
   {
     path: "/locations",

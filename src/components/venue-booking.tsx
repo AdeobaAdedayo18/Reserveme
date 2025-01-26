@@ -1,26 +1,79 @@
-"use client";
-
 import { format } from "date-fns";
 import { useState, useMemo } from "react";
 import { DayPicker } from "react-day-picker";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { SpaceBookingTimeSlot } from "../interfaces/Spaces";
 import useData from "../hooks/useData";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "./ui/toast";
-
+import useAdd from "@/hooks/useAdd";
+import { Booking } from "@/interfaces/Booking";
+import { useFlutterwave, closePaymentModal } from "flutterwave-react-v3";
 interface VenueBookingProps {
   price: number;
   user: string;
   id: string | undefined;
 }
 
-export default function VenueBooking({ price, user, id }: VenueBookingProps) {
+const VenueBooking = ({ price, user, id }: VenueBookingProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [amount, setAmount] = useState(0);
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+
+  const config = {
+    public_key: "FLWPUBK_TEST-e7c8f332b9d34b01b958cf4f4f643018-X",
+    tx_ref: Date.now(),
+    amount: amount,
+    currency: "NGN",
+    payment_options: "card,mobilemoney,ussd",
+    customer: {
+      email: "adeobaadedayo18@gmail.com",
+      // phone_number: phone,
+      name: name,
+    },
+    customizations: {
+      title: "my Payment Title",
+      description: "Payment for items in cart",
+      logo: "https://st2.depositphotos.com/4403291/7418/v/450/depositphotos_74189661-stock-illustration-online-shop-log.jpg",
+    },
+  };
+
+  const handleFlutterPayment = useFlutterwave(config);
+  const location = useLocation(); // To handle query params after login
+  const [bookings, setBookings] = useState<Booking>({
+    space_id: id,
+    start_time: "",
+    end_time: "",
+    purpose: "",
+  });
+
+  // Pre-fill data from query params if coming back after login
+  const queryParams = new URLSearchParams(location.search);
+  const prefilledPurpose = queryParams.get("prefilledPurpose") || "";
+  const prefilledStartTime = queryParams.get("startTime") || "";
+  const prefilledEndTime = queryParams.get("endTime") || "";
+
+  const [purpose, setPurpose] = useState<string>(prefilledPurpose);
+
+  const [selectedSlots, setSelectedSlots] = useState(
+    prefilledStartTime && prefilledEndTime
+      ? [{ start: prefilledStartTime, end: prefilledEndTime, available: true }]
+      : []
+  );
+
   const { data, isLoading, error } = useData<SpaceBookingTimeSlot[]>(
     `/bookings/taken/${id}`
   );
+
+  const {
+    addData,
+    responseData,
+    error: addError,
+    isLoading: addLoading,
+  } = useAdd<Booking, any>("/bookings/");
 
   const bookedDates = useMemo(() => {
     const dates =
@@ -28,24 +81,18 @@ export default function VenueBooking({ price, user, id }: VenueBookingProps) {
     return new Set(dates);
   }, [data]);
 
-  const [date, setDate] = useState<Date>();
-  const [selectedSlots, setSelectedSlots] = useState<(typeof TIME_SLOTS)[0][]>(
-    []
-  );
-  const [purpose, setPurpose] = useState<string>("");
-
   const TIME_SLOTS = useMemo(() => {
     return Array.from({ length: 12 }, (_, i) => {
       const hour = i + 8;
       return {
         start: `${hour}:00`,
         end: `${hour + 1}:00`,
-        available: true, // Availability handled by bookings
+        available: true,
       };
     });
   }, []);
 
-  const handleSubmit = () => {
+  const ValidateInputs = () => {
     if (!purpose.trim()) {
       toast({
         title: "Validation Error",
@@ -55,26 +102,54 @@ export default function VenueBooking({ price, user, id }: VenueBookingProps) {
       return;
     }
 
+    const formatTime = (time: string) => {
+      const [hours, minutes] = time.split(":").map(Number);
+      if (!date) throw new Error("Date is undefined");
+      const newDate = new Date(date);
+      newDate.setHours(hours, minutes, 0, 0);
+      return newDate.toISOString();
+    };
+
+    setBookings({
+      space_id: id,
+      start_time: formatTime(selectedSlots[0].start),
+      end_time: formatTime(selectedSlots[selectedSlots.length - 1].end),
+      purpose: purpose,
+    });
+  };
+
+  const handleSubmit = () => {
+    ValidateInputs();
+
     if (user) {
+      addData(bookings);
       toast({
-        title: "Scheduled: Catch up ",
-        description: "Friday, February 10, 2023 at 5:57 PM",
+        title: "Scheduled: Catch up",
+        description: "Your booking is being processed.",
         action: (
           <ToastAction altText="Goto schedule to undo">
-            You need to be logged in to bool
+            Go to schedule
           </ToastAction>
         ),
       });
       navigate("/receipt");
     } else {
+      // Redirect to login with booking details in query params
       toast({
-        title: "Notice",
-        description: "You need to be logged in to book",
+        title: "Authentication Required",
+        description: "You need to be logged in to proceed.",
         variant: "destructive",
       });
-      navigate("/login", { state: { callbackUrl: "/payment" } });
+      const callbackUrl = `/location/${id}`;
+      const searchParams = new URLSearchParams({
+        purpose: purpose,
+        startTime: selectedSlots[0]?.start || "",
+        endTime: selectedSlots[selectedSlots.length - 1]?.end || "",
+      });
+      navigate(`/login?${searchParams.toString()}&callbackUrl=${callbackUrl}`);
     }
   };
+  const [date, setDate] = useState<Date>();
 
   const [totalAmount, setTotalAmount] = useState<number>(0);
 
@@ -206,53 +281,51 @@ export default function VenueBooking({ price, user, id }: VenueBookingProps) {
                 </button>
               ))}
             </div>
-            {selectedSlots.length > 0 && (
-              <div className="space-y-4 rounded-xl border border-neutral-200 bg-neutral-50/50 p-4">
-                <div>
-                  <h4 className="font-medium text-neutral-900">
-                    Booking Summary
-                  </h4>
-                  <div className="mt-2 space-y-1">
-                    {selectedSlots.map((slot, index) => (
-                      <div key={index} className="flex justify-between text-sm">
-                        <span className="text-neutral-600">
-                          {slot.start} - {slot.end}
-                        </span>
-                        <span className="font-medium text-neutral-900">
-                          ${price}
-                        </span>
-                      </div>
-                    ))}
-                    <div className="mt-2 flex justify-between border-t border-neutral-200 pt-2 font-medium">
-                      <span>Total Amount</span>
-                      <span>${totalAmount}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-neutral-700">
-                    Purpose<span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={purpose}
-                    onChange={(e) => setPurpose(e.target.value)}
-                    required
-                    className="mt-1 block w-full rounded-md border border-neutral-300 shadow-sm p-2"
-                    placeholder="Enter the purpose of booking"
-                  />
-                </div>
-                <button
-                  onClick={handleSubmit}
-                  className="w-full rounded-lg bg-rose-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-rose-700 hover:shadow-md"
-                >
-                  Proceed to Payment
-                </button>
-              </div>
-            )}
+            {/* {selectedSlots.length > 0 &&( */}
+            {/* )} */}
           </div>
         )}
+        <div className="space-y-4 rounded-xl border border-neutral-200 bg-neutral-50/50 p-4">
+          <div>
+            <h4 className="font-medium text-neutral-900">Booking Summary</h4>
+            <div className="mt-2 space-y-1">
+              {selectedSlots.map((slot, index) => (
+                <div key={index} className="flex justify-between text-sm">
+                  <span className="text-neutral-600">
+                    {slot.start} - {slot.end}
+                  </span>
+                  <span className="font-medium text-neutral-900">${price}</span>
+                </div>
+              ))}
+              <div className="mt-2 flex justify-between border-t border-neutral-200 pt-2 font-medium">
+                <span>Total Amount</span>
+                <span>${totalAmount}</span>
+              </div>
+            </div>
+          </div>
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-neutral-700">
+              Purpose<span className="text-rose-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={purpose}
+              onChange={(e) => setPurpose(e.target.value)}
+              required
+              className="mt-1 block w-full rounded-md border border-neutral-300 shadow-sm p-2"
+              placeholder="Enter the purpose of booking"
+            />
+          </div>
+          <button
+            onClick={handleSubmit}
+            className="w-full rounded-lg bg-rose-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-rose-700 hover:shadow-md"
+          >
+            Proceed to Payment
+          </button>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default VenueBooking;

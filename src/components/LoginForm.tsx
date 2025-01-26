@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import calendarlogo from "../assets/Black and Red Minimal Calendar with Clock Logo (2).svg";
 import { useState } from "react";
@@ -18,6 +18,7 @@ type FormData = z.infer<typeof schema>;
 
 const LoginForm = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [authenticated, setAuthenticated] = useState(false);
   const {
@@ -26,22 +27,40 @@ const LoginForm = () => {
     reset,
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
+  const queryParams = new URLSearchParams(location.search);
+  const prefilledPurpose = queryParams.get("purpose") || "";
+  const prefilledStartTime = queryParams.get("startTime") || "";
+  const prefilledEndTime = queryParams.get("endTime") || "";
+  const callbackUrl = queryParams.get("callbackUrl") || "";
   const onsubmit = async (data: FormData) => {
     console.log(data);
+    console.log(callbackUrl);
+
     reset();
     try {
       const response = await loginUser(data);
       response.detail == "Invalid Credentials"
         ? alert("Login unsuccessful")
         : alert("Login successful");
+      const { role } = await getSession();
+      if (callbackUrl === "") {
+        role === "user" ? navigate("/locations") : navigate("/admin-dashboard");
+      } else {
+        const searchParams = new URLSearchParams({
+          prefilledPurpose,
+          startTime: prefilledStartTime,
+          endTime: prefilledEndTime,
+        });
+        navigate(`${callbackUrl}?${searchParams.toString()}`);
+        // navigate(callbackUrl);
+      }
     } catch (error: any) {
       if (error.message) {
         alert(error.message);
       }
     }
-    const { role } = await getSession();
-    role === "user" ? navigate("/locations") : navigate("/admin-dashboard");
   };
+
   return (
     <>
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">

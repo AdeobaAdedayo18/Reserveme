@@ -1,7 +1,7 @@
 // Import necessary dependencies from axios and React
 import { AxiosRequestConfig, CanceledError } from "axios";
 import { useEffect, useState, useCallback } from "react";
-import { axiosInstance } from "../utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance";
 
 // Define a generic type for the hook
 const useData = <T>(endpoint: string, requestConfig?: AxiosRequestConfig, deps: any[] = []) => {

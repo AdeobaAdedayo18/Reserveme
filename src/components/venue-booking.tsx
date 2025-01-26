@@ -1,33 +1,98 @@
 "use client";
 
 import { format } from "date-fns";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { DayPicker } from "react-day-picker";
 import { useNavigate } from "react-router-dom";
-
-const TIME_SLOTS = Array.from({ length: 12 }, (_, i) => {
-  const hour = i + 8;
-  return {
-    start: `${hour}:00`,
-    end: `${hour + 1}:00`,
-    available: Math.random() > 0.3,
-  };
-});
+import { SpaceBookingTimeSlot } from "../interfaces/Spaces";
+import useData from "../hooks/useData";
+import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "./ui/toast";
 
 interface VenueBookingProps {
   price: number;
+  user: string;
+  id: string | undefined;
 }
 
-export default function VenueBooking({ price }: VenueBookingProps) {
+export default function VenueBooking({ price, user, id }: VenueBookingProps) {
+  const { toast } = useToast();
   const navigate = useNavigate();
+  const { data, isLoading, error } = useData<SpaceBookingTimeSlot[]>(
+    `/bookings/taken/${id}`
+  );
+
+  const bookedDates = useMemo(() => {
+    const dates =
+      data?.map((booking) => new Date(booking.start_time).toDateString()) || [];
+    return new Set(dates);
+  }, [data]);
+
   const [date, setDate] = useState<Date>();
   const [selectedSlots, setSelectedSlots] = useState<(typeof TIME_SLOTS)[0][]>(
     []
   );
+  const [purpose, setPurpose] = useState<string>("");
+
+  const TIME_SLOTS = useMemo(() => {
+    return Array.from({ length: 12 }, (_, i) => {
+      const hour = i + 8;
+      return {
+        start: `${hour}:00`,
+        end: `${hour + 1}:00`,
+        available: true, // Availability handled by bookings
+      };
+    });
+  }, []);
+
+  const handleSubmit = () => {
+    if (!purpose.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Purpose is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (user) {
+      toast({
+        title: "Scheduled: Catch up ",
+        description: "Friday, February 10, 2023 at 5:57 PM",
+        action: (
+          <ToastAction altText="Goto schedule to undo">
+            You need to be logged in to bool
+          </ToastAction>
+        ),
+      });
+      navigate("/receipt");
+    } else {
+      toast({
+        title: "Notice",
+        description: "You need to be logged in to book",
+        variant: "destructive",
+      });
+      navigate("/login", { state: { callbackUrl: "/payment" } });
+    }
+  };
+
   const [totalAmount, setTotalAmount] = useState<number>(0);
 
   const calculateAmount = (slots: (typeof TIME_SLOTS)[0][]) => {
     setTotalAmount(slots.length * price);
+  };
+
+  const areSlotsSequential = (slots: (typeof TIME_SLOTS)[0][]) => {
+    if (slots.length < 2) return true;
+    const sortedSlots = [...slots].sort(
+      (a, b) => parseInt(a.start) - parseInt(b.start)
+    );
+    for (let i = 1; i < sortedSlots.length; i++) {
+      const prevEnd = parseInt(sortedSlots[i - 1].end);
+      const currStart = parseInt(sortedSlots[i].start);
+      if (prevEnd !== currStart) return false;
+    }
+    return true;
   };
 
   const toggleSlot = (slot: (typeof TIME_SLOTS)[0]) => {
@@ -37,8 +102,12 @@ export default function VenueBooking({ price }: VenueBookingProps) {
     } else {
       updatedSlots = [...selectedSlots, slot];
     }
-    setSelectedSlots(updatedSlots);
-    calculateAmount(updatedSlots);
+    if (areSlotsSequential(updatedSlots)) {
+      setSelectedSlots(updatedSlots);
+      calculateAmount(updatedSlots);
+    } else {
+      alert("Selected slots must be sequential.");
+    }
   };
 
   return (
@@ -57,6 +126,11 @@ export default function VenueBooking({ price }: VenueBookingProps) {
             mode="single"
             selected={date}
             onSelect={setDate}
+            disabled={
+              bookedDates.size > 0
+                ? Array.from(bookedDates).map((d) => new Date(d))
+                : []
+            }
             className="mx-auto"
             classNames={{
               months:
@@ -155,9 +229,22 @@ export default function VenueBooking({ price }: VenueBookingProps) {
                     </div>
                   </div>
                 </div>
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-neutral-700">
+                    Purpose<span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={purpose}
+                    onChange={(e) => setPurpose(e.target.value)}
+                    required
+                    className="mt-1 block w-full rounded-md border border-neutral-300 shadow-sm p-2"
+                    placeholder="Enter the purpose of booking"
+                  />
+                </div>
                 <button
-                  onClick={() => navigate("/receipt")}
-                  className="w-full rounded-lg bg-rose-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-indigo-700 hover:shadow-md"
+                  onClick={handleSubmit}
+                  className="w-full rounded-lg bg-rose-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-rose-700 hover:shadow-md"
                 >
                   Proceed to Payment
                 </button>

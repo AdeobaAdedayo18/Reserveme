@@ -9,3 +9,8 @@ export interface Space {
     hourly_rate: number;
     images: string[];
 }
+
+export interface SpaceBookingTimeSlot {
+    start_time:string;
+    end_time:string;
+}

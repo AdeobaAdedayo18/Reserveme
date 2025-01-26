@@ -5,9 +5,10 @@ import ShowCase from "./pages/ShowCase";
 import LocationDetail from "./pages/LocationDetail";
 import LocationDetail1 from "./pages/LocationDetail1";
 import ReceiptPage from "./pages/ReceiptPage";
-import { StartPage } from "./pages/test";
+import ToastDemo, { StartPage } from "./pages/test";
 import LandingPage from "./pages/LandingPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import ToastSimple from "./pages/test";
 
 export const router = createBrowserRouter([
   {
@@ -31,7 +32,7 @@ export const router = createBrowserRouter([
     element: <ShowCase />,
   },
   {
-    path: "/location",
+    path: "/location/:spaceId",
     element: <LocationDetail1 />,
   },
   {
@@ -40,6 +41,6 @@ export const router = createBrowserRouter([
   },
   {
     path: "/test",
-    element: <StartPage />,
+    element: <ToastDemo />,
   },
 ]);

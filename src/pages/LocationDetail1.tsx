@@ -7,6 +7,9 @@ import pic2 from "../assets/pexels-kaip-996329.jpg";
 import pic3 from "../assets/pexels-pixabay-325876.jpg";
 import pic4 from "../assets/pexels-solliefoto-298863.jpg";
 import { getSession } from "../utils/session";
+import useData from "../hooks/useData";
+import { Space } from "../interfaces/Spaces";
+import { useParams } from "react-router-dom";
 
 const DEMO_IMAGES = [pic1, pic2, pic3, pic4];
 
@@ -16,11 +19,23 @@ const FACILITIES = [
   // Add more facilities as needed
 ];
 
-// const { username, user_id } = await getSession();
+const { user_id } = (await getSession()) || "";
+
+if (user_id) {
+  console.log("No user id");
+} else {
+  console.log("user dey");
+}
+
 // console.log(username);
 // console.log(user_id);
 
 export default function LocationDetail() {
+  const { spaceId } = useParams<{ spaceId: string }>();
+  const { time } = useParams<{ spaceId: string }>();
+
+  const { data, isLoading, error } = useData<Space>(`/spaces/${spaceId}/`);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <VenueHeader />
@@ -30,7 +45,7 @@ export default function LocationDetail() {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-                Cucrid Auditorium
+                {data?.name}
               </h1>
               <div className="mt-2 flex items-center gap-2 text-gray-600">
                 <svg
@@ -47,11 +62,13 @@ export default function LocationDetail() {
                   <path d="M20 10c0 4.989-4 9-8 9s-8-4.011-8-9a8 8 0 0 1 16 0Z" />
                   <circle cx="12" cy="10" r="3" />
                 </svg>
-                <span>Cucrid auditorium, 1st floor cucrid</span>
+                <span className="text-lg">{data?.capacity} seats</span>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-gray-900">$450</div>
+              <div className="text-2xl font-bold text-gray-900">
+                {data?.hourly_rate}
+              </div>
               <div className="text-sm text-gray-600">/hour</div>
             </div>
           </div>
@@ -72,10 +89,7 @@ export default function LocationDetail() {
               </h2>
             </div>
             <div className="space-y-4 p-6">
-              <p className="text-gray-600">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              </p>
+              <p className="text-gray-600">{data?.description}</p>
               <button className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200">
                 Read more
               </button>
@@ -89,9 +103,9 @@ export default function LocationDetail() {
             </div>
             <div className="p-6">
               <div className="grid gap-4 sm:grid-cols-2">
-                {FACILITIES.map((facility) => (
+                {data?.amenities.map((facility) => (
                   <div
-                    key={facility.label}
+                    key={facility}
                     className="flex items-center gap-2 rounded-lg border border-gray-200 p-3"
                   >
                     <svg
@@ -111,7 +125,7 @@ export default function LocationDetail() {
                       <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
                       <line x1="12" y1="20" x2="12" y2="20" />
                     </svg>
-                    <span className="text-gray-700">{facility.label}</span>
+                    <span className="text-gray-700">{facility}</span>
                   </div>
                 ))}
               </div>
@@ -119,7 +133,11 @@ export default function LocationDetail() {
           </div>
         </div>
         <div className="lg:sticky lg:top-6">
-          <VenueBooking price={450} />
+          <VenueBooking
+            price={data?.hourly_rate}
+            user={user_id}
+            id={data?.id}
+          />
         </div>
       </main>
     </div>

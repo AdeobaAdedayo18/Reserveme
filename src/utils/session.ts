@@ -1,6 +1,6 @@
 
 import Cookies from 'js-cookie';
-import { axiosInstance } from './axiosInstance';
+import { axiosInstance } from './axios';
 const isTokenExpired = (token: string): boolean => {
     try {
         const payload = JSON.parse(atob(token.split(".")[1]));
@@ -16,7 +16,7 @@ export const getSession = async () => {
     const username = Cookies.get('username');
     console.log(username);
     
-    const user_id = Cookies.get('user_id');
+    const user_id = Cookies.get('user_id') || "";
     const role = Cookies.get('role');
     console.log(user_id);
     
@@ -39,7 +39,7 @@ export const getSession = async () => {
 
 export const refreshAccessToken = async (refreshToken: string) => {
     try {
-        const response = await axiosInstance.post("/auth/refresh", { refresh: refreshToken });
+        const response = await axiosInstance.post("/auth/refresh-token", { refresh: refreshToken });
 
         if (response.detail) {
             console.error("Failed to refresh token");

@@ -80,7 +80,7 @@ export default function Showcase() {
         <ShowcaseHeader />
 
         {/* Filters */}
-        <div className="mb-6 flex flex-wrap gap-2">
+        {/* <div className="mb-6 flex flex-wrap gap-2">
           {[
             "All",
             "Auditorium",
@@ -97,12 +97,12 @@ export default function Showcase() {
               {filter}
             </button>
           ))}
-        </div>
+        </div> */}
 
         {/* Grid */}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {data?.map((location) => (
-            <LocationCard key={location.id} {...location} />
+            <LocationCard key={location.id} Space={location} />
           ))}
         </div>
 

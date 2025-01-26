@@ -82,7 +82,7 @@ export default function VenueGallery({ images }: VenueGalleryProps) {
             <div
               className={`absolute inset-0 transition-colors ${
                 currentImage === index
-                  ? "border-2 border-indigo-500"
+                  ? "border-2 border-rose-500"
                   : "bg-neutral-900/0 group-hover:bg-neutral-900/10"
               }`}
             />

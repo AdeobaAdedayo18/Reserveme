@@ -1,13 +1,10 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { useLocation, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useLocation, useNavigate } from "react-router-dom";
 import calendarlogo from "../assets/Black and Red Minimal Calendar with Clock Logo (2).svg";
-import { useState } from "react";
-import { useToast } from "../hooks/use-toast";
-import { loginUser, registerUser } from "../utils/auth";
-import { getSession } from "../utils/session";
+import { loginUser } from "../utils/auth";
 const schema = z.object({
   email: z.string().min(1, { message: "Email is required" }),
   password: z
@@ -19,45 +16,28 @@ type FormData = z.infer<typeof schema>;
 const LoginForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { toast } = useToast();
-  const [authenticated, setAuthenticated] = useState(false);
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
-  const queryParams = new URLSearchParams(location.search);
-  const prefilledPurpose = queryParams.get("purpose") || "";
-  const prefilledStartTime = queryParams.get("startTime") || "";
-  const prefilledEndTime = queryParams.get("endTime") || "";
-  const callbackUrl = queryParams.get("callbackUrl") || "";
-  const onsubmit = async (data: FormData) => {
-    console.log(data);
-    console.log(callbackUrl);
+  const params = new URLSearchParams(location.search);
+  const callbackUrl = params.get("callbackUrl") || "/locations";
 
-    reset();
+  const onSubmit = async (data: any) => {
     try {
-      const response = await loginUser(data);
-      response.detail == "Invalid Credentials"
-        ? alert("Login unsuccessful")
-        : alert("Login successful");
-      const { role } = await getSession();
-      if (callbackUrl === "") {
-        role === "user" ? navigate("/locations") : navigate("/admin-dashboard");
-      } else {
-        const searchParams = new URLSearchParams({
-          prefilledPurpose,
-          startTime: prefilledStartTime,
-          endTime: prefilledEndTime,
-        });
-        navigate(`${callbackUrl}?${searchParams.toString()}`);
-        // navigate(callbackUrl);
-      }
-    } catch (error: any) {
-      if (error.message) {
-        alert(error.message);
-      }
+      await loginUser(data);
+      reset();
+      const bookingParams = new URLSearchParams({
+        purpose: params.get("purpose") || "",
+        date: params.get("date") || "",
+        startTime: params.get("startTime") || "",
+        endTime: params.get("endTime") || "",
+      });
+      navigate(`${callbackUrl}?${bookingParams.toString()}`);
+    } catch (error) {
+      alert("Login failed");
     }
   };
 
@@ -77,7 +57,7 @@ const LoginForm = () => {
               Just a few steps away, please enter your details...
             </p>
           </div>
-          <form onSubmit={handleSubmit(onsubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-4">
               <label className="block text-sm font-medium text-black">
                 Email address

@@ -1,30 +1,25 @@
-import VenueBooking from "../components/venue-booking";
-import VenueGallery from "../components/venue-gallery";
-import VenueHeader from "../components/venure-header";
-import logo from "../assets/pexels-solliefoto-298863.jpg";
+import { useParams } from "react-router-dom";
 import pic1 from "../assets/pexels-daiangan-102129.jpg";
 import pic2 from "../assets/pexels-kaip-996329.jpg";
 import pic3 from "../assets/pexels-pixabay-325876.jpg";
 import pic4 from "../assets/pexels-solliefoto-298863.jpg";
-import { getSession } from "../utils/session";
+import VenueBooking from "../components/venue-booking";
+import VenueGallery from "../components/venue-gallery";
+import VenueHeader from "../components/venure-header";
 import useData from "../hooks/useData";
 import { Space } from "../interfaces/Spaces";
-import { useParams } from "react-router-dom";
+import { getSession } from "../utils/session";
 
 const DEMO_IMAGES = [pic1, pic2, pic3, pic4];
 
-const FACILITIES = [
-  { icon: "wifi", label: "Free WiFi" },
-  { icon: "parking", label: "Parking Available" },
-  // Add more facilities as needed
-];
-
-const { user_id } = (await getSession()) || "";
+const session = await getSession();
+const user_id = session?.user_id;
+console.log(user_id);
 
 if (user_id) {
-  console.log("No user id");
-} else {
   console.log("user dey");
+} else {
+  console.log("user no dey");
 }
 
 // console.log(username);
@@ -32,9 +27,9 @@ if (user_id) {
 
 export default function LocationDetail() {
   const { spaceId } = useParams<{ spaceId: string }>();
-  const { time } = useParams<{ spaceId: string }>();
+  // const { time } = useParams<{ spaceId: string }>();
 
-  const { data, isLoading, error } = useData<Space>(`/spaces/${spaceId}/`);
+  const { data } = useData<Space>(`/spaces/${spaceId}/`);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -133,11 +128,7 @@ export default function LocationDetail() {
           </div>
         </div>
         <div className="lg:sticky lg:top-6">
-          <VenueBooking
-            price={data?.hourly_rate}
-            user={user_id}
-            id={data?.id}
-          />
+          <VenueBooking price={data?.hourly_rate} id={data?.id} />
         </div>
       </main>
     </div>

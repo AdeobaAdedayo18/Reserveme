@@ -1,188 +1,114 @@
-import { format } from "date-fns";
-import { useState, useMemo } from "react";
-import { DayPicker } from "react-day-picker";
-import { useLocation, useNavigate } from "react-router-dom";
-import { SpaceBookingTimeSlot } from "../interfaces/Spaces";
-import useData from "../hooks/useData";
 import { useToast } from "@/hooks/use-toast";
-import { ToastAction } from "./ui/toast";
 import useAdd from "@/hooks/useAdd";
 import { Booking } from "@/interfaces/Booking";
-import { useFlutterwave, closePaymentModal } from "flutterwave-react-v3";
+import { format, parseISO } from "date-fns";
+import { useEffect, useMemo, useState } from "react";
+import { DayPicker } from "react-day-picker";
+import { useLocation, useNavigate } from "react-router-dom";
+import useData from "../hooks/useData";
+import { SpaceBookingTimeSlot } from "../interfaces/Spaces";
+import { getSession } from "@/utils/session";
 interface VenueBookingProps {
-  price: number;
-  user: string;
+  price: number | undefined;
   id: string | undefined;
 }
 
-const VenueBooking = ({ price, user, id }: VenueBookingProps) => {
-  const { toast } = useToast();
+const session = await getSession();
+const user_id = session?.user_id;
+const VenueBooking = ({ price, id }: VenueBookingProps) => {
   const navigate = useNavigate();
-  const [amount, setAmount] = useState(0);
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-
-  const config = {
-    public_key: "FLWPUBK_TEST-e7c8f332b9d34b01b958cf4f4f643018-X",
-    tx_ref: Date.now(),
-    amount: amount,
-    currency: "NGN",
-    payment_options: "card,mobilemoney,ussd",
-    customer: {
-      email: "adeobaadedayo18@gmail.com",
-      // phone_number: phone,
-      name: name,
-    },
-    customizations: {
-      title: "my Payment Title",
-      description: "Payment for items in cart",
-      logo: "https://st2.depositphotos.com/4403291/7418/v/450/depositphotos_74189661-stock-illustration-online-shop-log.jpg",
-    },
-  };
-
-  const handleFlutterPayment = useFlutterwave(config);
-  const location = useLocation(); // To handle query params after login
-  const [bookings, setBookings] = useState<Booking>({
-    space_id: id,
-    start_time: "",
-    end_time: "",
-    purpose: "",
-  });
-
-  // Pre-fill data from query params if coming back after login
+  const location = useLocation();
+  const { toast } = useToast();
   const queryParams = new URLSearchParams(location.search);
-  const prefilledPurpose = queryParams.get("prefilledPurpose") || "";
-  const prefilledStartTime = queryParams.get("startTime") || "";
-  const prefilledEndTime = queryParams.get("endTime") || "";
 
-  const [purpose, setPurpose] = useState<string>(prefilledPurpose);
-
-  const [selectedSlots, setSelectedSlots] = useState(
-    prefilledStartTime && prefilledEndTime
-      ? [{ start: prefilledStartTime, end: prefilledEndTime, available: true }]
-      : []
+  // State initialization from URL params
+  const [date, setDate] = useState<Date | undefined>(
+    queryParams.get("date") ? parseISO(queryParams.get("date")!) : undefined
   );
+  const [purpose, setPurpose] = useState(queryParams.get("purpose") || "");
+  const [selectedSlots, setSelectedSlots] = useState<
+    { start: string; end: string }[]
+  >([]);
+  const [totalAmount, setTotalAmount] = useState(0);
 
-  const { data, isLoading, error } = useData<SpaceBookingTimeSlot[]>(
+  const { addData } = useAdd<Booking, any>("/bookings/");
+  const { data: bookedSlots } = useData<SpaceBookingTimeSlot[]>(
     `/bookings/taken/${id}`
   );
 
-  const {
-    addData,
-    responseData,
-    error: addError,
-    isLoading: addLoading,
-  } = useAdd<Booking, any>("/bookings/");
+  // Calculate total amount whenever slots change
+  useEffect(() => {
+    setTotalAmount(selectedSlots.length * price!);
+  }, [selectedSlots, price]);
 
-  const bookedDates = useMemo(() => {
-    const dates =
-      data?.map((booking) => new Date(booking.start_time).toDateString()) || [];
-    return new Set(dates);
-  }, [data]);
-
-  const TIME_SLOTS = useMemo(() => {
-    return Array.from({ length: 12 }, (_, i) => {
-      const hour = i + 8;
-      return {
-        start: `${hour}:00`,
-        end: `${hour + 1}:00`,
+  // Generate time slots
+  const TIME_SLOTS = useMemo(
+    () =>
+      Array.from({ length: 12 }, (_, i) => ({
+        start: `${i + 8}:00`,
+        end: `${i + 9}:00`,
         available: true,
-      };
-    });
-  }, []);
+      })),
+    []
+  );
 
-  const ValidateInputs = () => {
-    if (!purpose.trim()) {
-      toast({
-        title: "Validation Error",
-        description: "Purpose is required.",
-        variant: "destructive",
-      });
+  // Calculate booked dates
+  const bookedDates = useMemo(
+    () =>
+      new Set(
+        bookedSlots?.map((slot) => new Date(slot.start_time).toDateString())
+      ),
+    [bookedSlots]
+  );
+
+  const handleBooking = async () => {
+    if (!date || !purpose || selectedSlots.length === 0) {
+      toast({ title: "Missing required fields", variant: "destructive" });
       return;
     }
 
-    const formatTime = (time: string) => {
-      const [hours, minutes] = time.split(":").map(Number);
-      if (!date) throw new Error("Date is undefined");
-      const newDate = new Date(date);
-      newDate.setHours(hours, minutes, 0, 0);
-      return newDate.toISOString();
+    const bookingPayload = {
+      space_id: id,
+      start_time: combineDateTime(date, selectedSlots[0].start),
+      end_time: combineDateTime(
+        date,
+        selectedSlots[selectedSlots.length - 1].end
+      ),
+      purpose,
     };
 
-    setBookings({
-      space_id: id,
-      start_time: formatTime(selectedSlots[0].start),
-      end_time: formatTime(selectedSlots[selectedSlots.length - 1].end),
-      purpose: purpose,
+    if (user_id) {
+      try {
+        const response = await addData(bookingPayload);
+        navigate(`/payment-confirmation/${response.id}`);
+      } catch (error) {
+        toast({ title: "Booking failed", variant: "destructive" });
+      }
+    } else {
+      const params = new URLSearchParams({
+        purpose,
+        date: date.toISOString(),
+        startTime: selectedSlots[0].start,
+        endTime: selectedSlots[selectedSlots.length - 1].end,
+      });
+      navigate(`/login?${params.toString()}&callbackUrl=${location.pathname}`);
+    }
+  };
+
+  const combineDateTime = (date: Date, time: string) => {
+    const [hours, minutes] = time.split(":").map(Number);
+    const newDate = new Date(date);
+    newDate.setHours(hours, minutes, 0, 0);
+    return newDate.toISOString();
+  };
+
+  const toggleSlot = (slot: { start: string; end: string }) => {
+    setSelectedSlots((prev) => {
+      const exists = prev.some((s) => s.start === slot.start);
+      return exists
+        ? prev.filter((s) => s.start !== slot.start)
+        : [...prev, slot].sort((a, b) => a.start.localeCompare(b.start));
     });
-  };
-
-  const handleSubmit = () => {
-    ValidateInputs();
-
-    if (user) {
-      addData(bookings);
-      toast({
-        title: "Scheduled: Catch up",
-        description: "Your booking is being processed.",
-        action: (
-          <ToastAction altText="Goto schedule to undo">
-            Go to schedule
-          </ToastAction>
-        ),
-      });
-      navigate("/receipt");
-    } else {
-      // Redirect to login with booking details in query params
-      toast({
-        title: "Authentication Required",
-        description: "You need to be logged in to proceed.",
-        variant: "destructive",
-      });
-      const callbackUrl = `/location/${id}`;
-      const searchParams = new URLSearchParams({
-        purpose: purpose,
-        startTime: selectedSlots[0]?.start || "",
-        endTime: selectedSlots[selectedSlots.length - 1]?.end || "",
-      });
-      navigate(`/login?${searchParams.toString()}&callbackUrl=${callbackUrl}`);
-    }
-  };
-  const [date, setDate] = useState<Date>();
-
-  const [totalAmount, setTotalAmount] = useState<number>(0);
-
-  const calculateAmount = (slots: (typeof TIME_SLOTS)[0][]) => {
-    setTotalAmount(slots.length * price);
-  };
-
-  const areSlotsSequential = (slots: (typeof TIME_SLOTS)[0][]) => {
-    if (slots.length < 2) return true;
-    const sortedSlots = [...slots].sort(
-      (a, b) => parseInt(a.start) - parseInt(b.start)
-    );
-    for (let i = 1; i < sortedSlots.length; i++) {
-      const prevEnd = parseInt(sortedSlots[i - 1].end);
-      const currStart = parseInt(sortedSlots[i].start);
-      if (prevEnd !== currStart) return false;
-    }
-    return true;
-  };
-
-  const toggleSlot = (slot: (typeof TIME_SLOTS)[0]) => {
-    let updatedSlots;
-    if (selectedSlots.includes(slot)) {
-      updatedSlots = selectedSlots.filter((s) => s !== slot);
-    } else {
-      updatedSlots = [...selectedSlots, slot];
-    }
-    if (areSlotsSequential(updatedSlots)) {
-      setSelectedSlots(updatedSlots);
-      calculateAmount(updatedSlots);
-    } else {
-      alert("Selected slots must be sequential.");
-    }
   };
 
   return (
@@ -201,11 +127,7 @@ const VenueBooking = ({ price, user, id }: VenueBookingProps) => {
             mode="single"
             selected={date}
             onSelect={setDate}
-            disabled={
-              bookedDates.size > 0
-                ? Array.from(bookedDates).map((d) => new Date(d))
-                : []
-            }
+            disabled={[...bookedDates].map((d) => new Date(d))}
             className="mx-auto"
             classNames={{
               months:
@@ -244,19 +166,24 @@ const VenueBooking = ({ price, user, id }: VenueBookingProps) => {
                   key={i}
                   disabled={!slot.available}
                   onClick={() => toggleSlot(slot)}
-                  className={`
-                    w-full rounded-lg border p-3 text-left transition-all
-                    ${
-                      !slot.available
-                        ? "cursor-not-allowed border-neutral-200 bg-neutral-50 opacity-50"
-                        : "border-neutral-200 hover:border-rose-500 hover:shadow-md"
-                    }
-                    ${
-                      selectedSlots.includes(slot)
-                        ? "border-rose-500 bg-rose-50 text-rose-900 shadow-sm"
-                        : "bg-white"
-                    }
-                  `}
+                  // className={`
+                  //   w-full rounded-lg border p-3 text-left transition-all
+                  //   ${
+                  //     !slot.available
+                  //       ? "cursor-not-allowed border-neutral-200 bg-neutral-50 opacity-50"
+                  //       : "border-neutral-200 hover:border-rose-500 hover:shadow-md"
+                  //   }
+                  //   ${
+                  //     selectedSlots.includes(slot)
+                  //       ? "border-rose-500 bg-rose-50 text-rose-900 shadow-sm"
+                  //       : "bg-white"
+                  //   }
+                  // `}
+                  className={`p-2 rounded border ${
+                    selectedSlots.some((s) => s.start === slot.start)
+                      ? "bg-rose-100 border-rose-500"
+                      : "border-gray-200 hover:border-rose-300"
+                  }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium">
@@ -298,7 +225,7 @@ const VenueBooking = ({ price, user, id }: VenueBookingProps) => {
                 </div>
               ))}
               <div className="mt-2 flex justify-between border-t border-neutral-200 pt-2 font-medium">
-                <span>Total Amount</span>
+                <span>Total:</span>
                 <span>${totalAmount}</span>
               </div>
             </div>
@@ -308,19 +235,18 @@ const VenueBooking = ({ price, user, id }: VenueBookingProps) => {
               Purpose<span className="text-rose-500">*</span>
             </label>
             <input
-              type="text"
               value={purpose}
               onChange={(e) => setPurpose(e.target.value)}
+              placeholder="Booking purpose"
               required
               className="mt-1 block w-full rounded-md border border-neutral-300 shadow-sm p-2"
-              placeholder="Enter the purpose of booking"
             />
           </div>
           <button
-            onClick={handleSubmit}
+            onClick={handleBooking}
             className="w-full rounded-lg bg-rose-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-rose-700 hover:shadow-md"
           >
-            Proceed to Payment
+            {user_id ? "Book Now" : "Login to Book"}
           </button>
         </div>
       </div>

@@ -1,8 +1,5 @@
-// import {redirect} from "next/navigation";
-
-import { axiosInstance } from "./axios";
-import { deleteCookie, setCookie } from "./cookies";
 import Cookies from "js-cookie";
+import axiosInstance from "./axiosInstance";
 
 const COOKIE_OPTIONS = {
     path: "/",
@@ -13,65 +10,36 @@ const COOKIE_OPTIONS = {
 export const loginUser = async (formData: { password: string; email: string }) => {
     try {
         const response = await axiosInstance.post("/auth/user/login", formData);
-
-        if (!response || !response.data) {
-            throw new Error('Login failed');
-        }
-
         const { access_token, refresh_token, username, user_id, role } = response.data;
-        console.log(response);
-        
 
+        // Store tokens and user details in cookies
         Cookies.set("access_token", access_token, COOKIE_OPTIONS);
         Cookies.set("refresh_token", refresh_token, COOKIE_OPTIONS);
-        Cookies.set("username", username, { ...COOKIE_OPTIONS, httpOnly: false });
-        Cookies.set("user_id",user_id, { ...COOKIE_OPTIONS, httpOnly: false });
-        Cookies.set("role",role, { ...COOKIE_OPTIONS, httpOnly: false });
+        Cookies.set("username", username, COOKIE_OPTIONS);
+        Cookies.set("user_id", user_id, COOKIE_OPTIONS);
+        Cookies.set("role", role, COOKIE_OPTIONS);
 
         return { success: true };
-    } catch (error) {
-        return { success: false, message: error };
+    } catch (error:any) {
+        console.error("Login failed:", error);
+        return { success: false, message: error.response?.data?.detail || "Login failed" };
     }
 };
 
 export const registerUser = async (formData: { email: string; username?: string; password: string }) => {
     try {
         const response = await axiosInstance.post("/auth/register", formData);
-
-        if (!response || !response.data) {
-            const error = await response.data;
-            throw new Error(error.detail || 'Registration failed');
-        }
-
-        if (!response || !response.data) {
-            throw new Error('Login failed');
-        }
-
-        const { message } = await response.data;
-        return { success: true, message: message, redirect: "/sign-in" };
-    } catch (error: any) {
-        return { success: false, message: error.message };
+        return { success: true, message: response.data.message, redirect: "/sign-in" };
+    } catch (error:any) {
+        console.error("Registration failed:", error);
+        return { success: false, message: error.response?.data?.detail || "Registration failed" };
     }
 };
 
-
-export const getRefreshToken = async (refreshToken: string) => {
-    try {
-        const response = await axiosInstance.post("/auth/refresh-token", { refresh: refreshToken });
-
-        if (!response || !response.data) {
-            throw new Error('Failed to refresh token');
-        }
-
-        const { access_token } = await response.data;
-        return access_token;
-    } catch (error) {
-        return null;
-    }
-}
-
-export const logoutUser = async () => {
-    await deleteCookie("access_token");
-    await deleteCookie("refresh_token");
-    await deleteCookie("user_data");
+export const logoutUser = () => {
+    Cookies.remove("access_token");
+    Cookies.remove("refresh_token");
+    Cookies.remove("username");
+    Cookies.remove("user_id");
+    Cookies.remove("role");
 };

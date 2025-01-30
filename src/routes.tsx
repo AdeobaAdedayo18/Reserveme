@@ -1,14 +1,12 @@
 import { createBrowserRouter } from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
-import ShowCase from "./pages/ShowCase";
-import LocationDetail from "./pages/LocationDetail";
-import LocationDetail1 from "./pages/LocationDetail1";
-import ReceiptPage from "./pages/ReceiptPage";
-import ToastDemo, { StartPage } from "./pages/test";
-import LandingPage from "./pages/LandingPage";
 import AdminDashboard from "./pages/AdminDashboard";
-import ToastSimple from "./pages/test";
+import LandingPage from "./pages/LandingPage";
+import LocationDetail1 from "./pages/LocationDetail1";
+import LoginPage from "./pages/LoginPage";
+import Payment from "./pages/Payment";
+import ReceiptPage from "./pages/ReceiptPage";
+import ShowCase from "./pages/ShowCase";
+import SignupPage from "./pages/SignupPage";
 
 export const router = createBrowserRouter([
   {
@@ -36,11 +34,15 @@ export const router = createBrowserRouter([
     element: <LocationDetail1 />,
   },
   {
+    path: "/payment-confirmation/:spaceID",
+    element: <Payment />,
+  },
+  {
     path: "/receipt",
     element: <ReceiptPage />,
   },
   {
     path: "/test",
-    element: <ToastDemo />,
+    element: <AdminDashboard />,
   },
 ]);

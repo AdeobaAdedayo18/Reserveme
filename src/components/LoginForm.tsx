@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocation, useNavigate } from "react-router-dom";
 import calendarlogo from "../assets/Black and Red Minimal Calendar with Clock Logo (2).svg";
 import { loginUser } from "../utils/auth";
+import { toast } from "@/hooks/use-toast";
 const schema = z.object({
   email: z.string().min(1, { message: "Email is required" }),
   password: z
@@ -27,17 +28,29 @@ const LoginForm = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      await loginUser(data);
+      const response = loginUser(data);
       reset();
+
       const bookingParams = new URLSearchParams({
         purpose: params.get("purpose") || "",
         date: params.get("date") || "",
         startTime: params.get("startTime") || "",
         endTime: params.get("endTime") || "",
       });
-      navigate(`${callbackUrl}?${bookingParams.toString()}`);
+      if ((await response).role === "admin") {
+        navigate("/admin");
+      } else {
+        // navigate("/location")
+        if (bookingParams.toString() === "purpose=&date=&startTime=&endTime=") {
+          navigate(`${callbackUrl}?${bookingParams.toString()}`);
+        } else {
+          navigate("/locations");
+        }
+      }
+
+      toast({ title: "Authentication Successful" });
     } catch (error) {
-      alert("Login failed");
+      toast({ title: "Authentication failed", variant: "destructive" });
     }
   };
 

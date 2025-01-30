@@ -18,8 +18,9 @@ export const loginUser = async (formData: { password: string; email: string }) =
         Cookies.set("username", username, COOKIE_OPTIONS);
         Cookies.set("user_id", user_id, COOKIE_OPTIONS);
         Cookies.set("role", role, COOKIE_OPTIONS);
+       
 
-        return { success: true };
+        return { success: true, role: role };
     } catch (error:any) {
         console.error("Login failed:", error);
         return { success: false, message: error.response?.data?.detail || "Login failed" };

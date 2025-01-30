@@ -13,9 +13,9 @@ export const isTokenExpired = (token: string): boolean => {
 
 // Retrieve session details
 export const getSession = async () => {
-    const access_token = Cookies.get("access_token");
-    const refresh_token = Cookies.get("refresh_token");
-    const user_id = Cookies.get("user_id");
+    const access_token = Cookies.get("access_token")
+    const refresh_token = Cookies.get("refresh_token")
+    const user_id = Cookies.get("user_id")
     const role = Cookies.get("role");
 
     // Check token validity

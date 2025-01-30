@@ -12,58 +12,67 @@ import { useState } from "react";
 import DataTable from "../components/DataTable";
 import SidebarNav from "../components/SidebarNav";
 import StatCard from "../components/statCard";
+import { getSession } from "@/utils/session";
+import { useNavigate } from "react-router-dom";
+import { useAllBookings } from "@/hooks/useAdminData";
+import useData from "@/hooks/useData";
+import { Space } from "@/interfaces/Spaces";
 
 // Sample data - In a real app, this would come from an API
-const recentBookings = [
-  {
-    id: 1,
-    venue: "Cucrid Auditorium",
-    user: "John Doe",
-    date: "2024-01-20",
-    status: "Confirmed",
-    amount: 450,
-  },
-  {
-    id: 2,
-    venue: "HSL Studio",
-    user: "Jane Smith",
-    date: "2024-01-21",
-    status: "Pending",
-    amount: 300,
-  },
-  // Add more bookings as needed
-];
+// const recentBookings = [
+//   {
+//     id: 1,
+//     venue: "Cucrid Auditorium",
+//     user: "John Doe",
+//     date: "2024-01-20",
+//     status: "Confirmed",
+//     amount: 450,
+//   },
+//   {
+//     id: 2,
+//     venue: "HSL Studio",
+//     user: "Jane Smith",
+//     date: "2024-01-21",
+//     status: "Pending",
+//     amount: 300,
+//   },
+//   // Add more bookings as needed
+// ];
 
-const bookingColumns = [
-  { header: "Venue", accessor: "venue" as const },
-  { header: "User", accessor: "user" as const },
-  { header: "Date", accessor: "date" as const },
-  {
-    header: "Status",
-    accessor: "status" as const,
-    cell: (value: string) => (
-      <span
-        className={`inline-flex rounded-full px-2 py-1 text-xs font-medium
-          ${
-            value === "Confirmed"
-              ? "bg-green-100 text-green-700"
-              : "bg-yellow-100 text-yellow-700"
-          }
-        `}
-      >
-        {value}
-      </span>
-    ),
-  },
-  {
-    header: "Amount",
-    accessor: "amount" as const,
-    cell: (value: number) => `$${value}`,
-  },
-];
+const session = await getSession();
+const role = (await session)?.role;
+console.log(role);
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
+  console.log(role);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [currentTab, setCurrentTab] = useState<string>("dashboard");
+  const {
+    data: recentBookings,
+    //  isLoading, error
+  } = useAllBookings();
+  const {
+    data: Venues,
+    //  isLoading, error
+  } = useData<Space[]>("/spaces/");
+  console.log(role?.value);
+
+  const isadmin = role === "admin";
+  if (!isadmin) {
+    navigate("/locations");
+    console.log("true ooo");
+  }
+
+  let revenue = 0;
+
+  const CalculateRevenue = () => {
+    for (let i = 0; i < recentBookings?.length!; i++) {
+      revenue += recentBookings![i]?.total_cost;
+    }
+    return revenue;
+  };
+  revenue = CalculateRevenue();
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -121,13 +130,13 @@ export default function AdminDashboard() {
           <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
               title="Total Bookings"
-              value="1,234"
+              value={recentBookings?.length}
               icon={Calendar}
               trend={{ value: 12, isPositive: true }}
             />
             <StatCard
               title="Active Venues"
-              value="45"
+              value={Venues?.length}
               icon={Building2}
               trend={{ value: 8, isPositive: true }}
             />
@@ -139,7 +148,7 @@ export default function AdminDashboard() {
             />
             <StatCard
               title="Revenue"
-              value="$45,678"
+              value={"$" + revenue}
               icon={DollarSign}
               trend={{ value: 23, isPositive: true }}
             />
@@ -190,7 +199,7 @@ export default function AdminDashboard() {
                 View all
               </button>
             </div>
-            <DataTable data={recentBookings} columns={bookingColumns} />
+            <DataTable data={recentBookings} />
           </div>
         </main>
       </div>

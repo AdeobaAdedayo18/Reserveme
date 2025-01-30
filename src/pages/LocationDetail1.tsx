@@ -16,12 +16,6 @@ const session = await getSession();
 const user_id = session?.user_id;
 console.log(user_id);
 
-if (user_id) {
-  console.log("user dey");
-} else {
-  console.log("user no dey");
-}
-
 // console.log(username);
 // console.log(user_id);
 

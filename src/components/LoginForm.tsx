@@ -41,11 +41,11 @@ const LoginForm = () => {
         navigate("/admin");
       } else {
         // navigate("/location")
-        if (bookingParams.toString() === "purpose=&date=&startTime=&endTime=") {
-          navigate(`${callbackUrl}?${bookingParams.toString()}`);
-        } else {
-          navigate("/locations");
-        }
+        // if (bookingParams.toString() === "purpose=&date=&startTime=&endTime=") {
+        navigate(`${callbackUrl}?${bookingParams.toString()}`);
+        // } else {
+        // navigate("/locations");
+        // }
       }
 
       toast({ title: "Authentication Successful" });

@@ -32,3 +32,75 @@ redirect_url
 tx_ref
 : 
 "UNFURHEVYK424OVKBWLVH0DA"
+
+
+
+
+    // handleFlutterPayment({
+    //   callback: async (response) => {
+    //     try {
+    //       console.log(response);
+
+    //       if (response.status !== "successful") {
+    //         toast({
+    //           title: "Payment Failed",
+    //           description: "Transaction was not successful. Please try again.",
+    //           variant: "destructive",
+    //         });
+    //         return;
+    //       }
+
+    //       // Verify with Flutterwave first
+    //       const flutterwaveVerified = await verifyPaymentFlutterwave(
+    //         response.transaction_id
+    //       );
+    //       if (!flutterwaveVerified) {
+    //         toast({
+    //           title: "Verification Failed",
+    //           description: "Payment verification with Flutterwave failed",
+    //           variant: "destructive",
+    //         });
+    //         return;
+    //       }
+
+    //       // Then verify with our server
+    //       const serverVerified = await verifyPaymentServer(
+    //         response.transaction_id,
+    //         response.tx_ref
+    //       );
+
+    //       if (!serverVerified) {
+    //         toast({
+    //           title: "Server Verification Failed",
+    //           description: "Could not confirm payment with our servers",
+    //           variant: "destructive",
+    //         });
+    //         return;
+    //       }
+
+    //       // Both verifications successful
+    //       toast({
+    //         title: "Payment Successful",
+    //         description: "Your payment has been confirmed!",
+    //       });
+    //       closePaymentModal();
+    //       navigate(`/receipt/${response.tx_ref}`);
+    //     } catch (error) {
+    //       toast({
+    //         title: "Error",
+    //         description:
+    //           "An unexpected error occurred. Please contact support.",
+    //         variant: "destructive",
+    //       });
+    //     } finally {
+    //       closePaymentModal();
+    //     }
+    //   },
+    //   onClose: () => {
+    //     toast({
+    //       title: "Payment Cancelled",
+    //       description: "Payment process was cancelled",
+    //       variant: "destructive",
+    //     });
+    //   },
+    // });

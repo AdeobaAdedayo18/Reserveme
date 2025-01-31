@@ -7,6 +7,7 @@ import Payment from "./pages/Payment";
 import ReceiptPage from "./pages/ReceiptPage";
 import ShowCase from "./pages/ShowCase";
 import SignupPage from "./pages/SignupPage";
+import Test from "./pages/test";
 
 export const router = createBrowserRouter([
   {
@@ -38,11 +39,11 @@ export const router = createBrowserRouter([
     element: <Payment />,
   },
   {
-    path: "/receipt",
+    path: "/receipt/:bookingID",
     element: <ReceiptPage />,
   },
   {
     path: "/test",
-    element: <AdminDashboard />,
+    element: <Test />,
   },
 ]);

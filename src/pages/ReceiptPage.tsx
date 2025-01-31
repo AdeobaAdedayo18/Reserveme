@@ -1,35 +1,29 @@
-import { format } from "date-fns";
+import useData from "@/hooks/useData";
+import { BookingPaymentReceipt } from "@/interfaces/Booking";
 import { Printer } from "lucide-react";
 import { useRef } from "react";
+import { useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
-
-interface ReceiptPageProps {
-  orderDetails: {
-    orderId: string;
-    userName: string;
-    date: Date;
-    timeSlot: string;
-    amount: number;
-    venueName: string;
-  };
-}
 
 const ReceiptPage = () => {
   const receiptRef = useRef<HTMLDivElement>(null);
-  const orderDetails = {
-    orderId: "ORD-2024-001",
-    userName: "John Doe",
-    date: new Date("2024-01-15"),
-    timeSlot: "10:00 AM - 12:00 PM",
-    amount: 900,
-    venueName: "Cucrid Auditorium",
-  };
+  const { bookingID } = useParams<{ bookingID: string }>();
+
+  const { data: orderDetails } = useData<BookingPaymentReceipt>(
+    `/bookings/${bookingID}/receipt`
+  );
 
   const handlePrint = useReactToPrint({
-    getContent: () => receiptRef.current,
-    documentTitle: `Receipt-${orderDetails.orderId}`,
-    onAfterPrint: () => alert("Receipt has been successfully printed!"),
+    contentRef: receiptRef,
+    documentTitle: `Receipt-${orderDetails?.receipt_no || "booking"}`,
+    onAfterPrint: () => console.log("Printed successfully"),
   });
+
+  // const handlePrint = useReactToPrint({
+  //   getContent: () => receiptRef.current,
+  //   documentTitle: `Receipt-${orderDetails.orderId}`,
+  //   onAfterPrint: () => alert("Receipt has been successfully printed!"),
+  // });
   //   console.log(receiptRef.current);
 
   //   const handlePrint = useReactToPrint({
@@ -49,7 +43,7 @@ const ReceiptPage = () => {
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900">Booking Receipt</h1>
           <button
-            onClick={handlePrint}
+            onClick={() => handlePrint()}
             className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800"
             aria-label="Print Receipt"
           >
@@ -73,7 +67,7 @@ const ReceiptPage = () => {
                 Receipt No.
               </div>
               <div className="text-lg font-semibold text-gray-900">
-                {orderDetails.orderId}
+                {orderDetails?.receipt_no}
               </div>
             </div>
           </div>
@@ -87,11 +81,19 @@ const ReceiptPage = () => {
               <div className="grid gap-4 text-sm">
                 <div>
                   <div className="font-medium text-gray-500">Name</div>
-                  <div className="text-gray-900">{orderDetails.userName}</div>
+                  <div className="text-gray-900">{orderDetails?.user.name}</div>
+                </div>
+                <div>
+                  <div className="font-medium text-gray-500">Email</div>
+                  <div className="text-gray-900">
+                    {orderDetails?.user.email}
+                  </div>
                 </div>
                 <div>
                   <div className="font-medium text-gray-500">Venue</div>
-                  <div className="text-gray-900">{orderDetails.venueName}</div>
+                  <div className="text-gray-900">
+                    {orderDetails?.space.name}
+                  </div>
                 </div>
               </div>
             </div>
@@ -108,17 +110,21 @@ const ReceiptPage = () => {
                   <div>
                     <div className="font-medium text-gray-500">Date</div>
                     <div className="text-gray-900">
-                      {format(orderDetails.date, "MMMM d, yyyy")}
+                      {orderDetails?.booking.date}
                     </div>
                   </div>
                   <div>
                     <div className="font-medium text-gray-500">Time</div>
-                    <div className="text-gray-900">{orderDetails.timeSlot}</div>
+                    <div className="text-gray-900">
+                      {orderDetails?.booking.time}
+                    </div>
                   </div>
                 </div>
                 <div>
                   <div className="font-medium text-gray-500">Duration</div>
-                  <div className="text-gray-900">2 hours</div>
+                  <div className="text-gray-900">
+                    {orderDetails?.booking.duration}
+                  </div>
                 </div>
               </div>
             </div>
@@ -135,13 +141,13 @@ const ReceiptPage = () => {
                   <div>
                     <div className="font-medium text-gray-500">Amount</div>
                     <div className="text-gray-900">
-                      ${orderDetails.amount.toFixed(2)}
+                      ${orderDetails?.payment.amount}
                     </div>
                   </div>
                   <div>
                     <div className="font-medium text-gray-500">Status</div>
                     <div className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-green-700">
-                      Paid
+                      {orderDetails?.payment.status}
                     </div>
                   </div>
                 </div>

@@ -1,7 +1,7 @@
 import { useToast } from "@/hooks/use-toast";
 import useAdd from "@/hooks/useAdd";
 import { Booking } from "@/interfaces/Booking";
-import { format, parseISO } from "date-fns";
+import { format, isWithinInterval, parseISO } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -9,19 +9,20 @@ import useData from "../hooks/useData";
 import { SpaceBookingTimeSlot } from "../interfaces/Spaces";
 import { getSession } from "@/utils/session";
 interface VenueBookingProps {
-  price: number | undefined;
+  price: number;
+  user: string;
   id: string | undefined;
 }
 
 const session = await getSession();
-const user_id = session?.user_id;
+const user1 = (await session)?.user_id;
+
 const VenueBooking = ({ price, id }: VenueBookingProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
   const queryParams = new URLSearchParams(location.search);
 
-  // State initialization from URL params
   const [date, setDate] = useState<Date | undefined>(
     queryParams.get("date") ? parseISO(queryParams.get("date")!) : undefined
   );
@@ -38,7 +39,7 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
 
   // Calculate total amount whenever slots change
   useEffect(() => {
-    setTotalAmount(selectedSlots.length * price!);
+    setTotalAmount(selectedSlots.length * price);
   }, [selectedSlots, price]);
 
   // Generate time slots
@@ -52,14 +53,40 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
     []
   );
 
-  // Calculate booked dates
-  const bookedDates = useMemo(
-    () =>
-      new Set(
-        bookedSlots?.map((slot) => new Date(slot.start_time).toDateString())
-      ),
-    [bookedSlots]
-  );
+  // Get booked time ranges for selected date
+  const bookedTimeRanges = useMemo(() => {
+    if (!date || !bookedSlots) return [];
+
+    return bookedSlots
+      .map((slot) => ({
+        start: parseISO(slot.start_time),
+        end: parseISO(slot.end_time),
+      }))
+      .filter(
+        ({ start, end }) =>
+          start.toDateString() === date.toDateString() ||
+          end.toDateString() === date.toDateString()
+      );
+  }, [date, bookedSlots]);
+
+  // Check if time slot is available
+  const isSlotAvailable = (slot: { start: string; end: string }) => {
+    if (!date) return true;
+
+    const slotStart = new Date(date);
+    const [startHour, startMinute] = slot.start.split(":").map(Number);
+    slotStart.setHours(startHour, startMinute);
+
+    const slotEnd = new Date(date);
+    const [endHour, endMinute] = slot.end.split(":").map(Number);
+    slotEnd.setHours(endHour, endMinute);
+
+    return !bookedTimeRanges.some(
+      ({ start, end }) =>
+        isWithinInterval(slotStart, { start, end }) ||
+        isWithinInterval(slotEnd, { start, end })
+    );
+  };
 
   const handleBooking = async () => {
     if (!date || !purpose || selectedSlots.length === 0) {
@@ -67,31 +94,37 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
       return;
     }
 
+    const sortedSlots = [...selectedSlots].sort((a, b) =>
+      a.start.localeCompare(b.start)
+    );
+    const startTime = sortedSlots[0].start;
+    const endTime = sortedSlots[sortedSlots.length - 1].end;
+
     const bookingPayload = {
       space_id: id,
-      start_time: combineDateTime(date, selectedSlots[0].start),
-      end_time: combineDateTime(
-        date,
-        selectedSlots[selectedSlots.length - 1].end
-      ),
+      start_time: combineDateTime(date, startTime),
+      end_time: combineDateTime(date, endTime),
       purpose,
     };
 
-    if (user_id) {
-      try {
+    try {
+      const session = await getSession();
+      if (session?.user_id) {
         const response = await addData(bookingPayload);
         navigate(`/payment-confirmation/${response.id}`);
-      } catch (error) {
-        toast({ title: "Booking failed", variant: "destructive" });
+      } else {
+        const params = new URLSearchParams({
+          purpose,
+          date: date.toISOString(),
+          startTime,
+          endTime,
+        });
+        navigate(
+          `/login?${params.toString()}&callbackUrl=${location.pathname}`
+        );
       }
-    } else {
-      const params = new URLSearchParams({
-        purpose,
-        date: date.toISOString(),
-        startTime: selectedSlots[0].start,
-        endTime: selectedSlots[selectedSlots.length - 1].end,
-      });
-      navigate(`/login?${params.toString()}&callbackUrl=${location.pathname}`);
+    } catch (error) {
+      toast({ title: "Booking failed", variant: "destructive" });
     }
   };
 
@@ -105,9 +138,17 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
   const toggleSlot = (slot: { start: string; end: string }) => {
     setSelectedSlots((prev) => {
       const exists = prev.some((s) => s.start === slot.start);
-      return exists
+      const newSlots = exists
         ? prev.filter((s) => s.start !== slot.start)
-        : [...prev, slot].sort((a, b) => a.start.localeCompare(b.start));
+        : [...prev, slot];
+
+      // Sort and ensure continuity
+      const sorted = newSlots.sort((a, b) => a.start.localeCompare(b.start));
+      const isContinuous = sorted.every(
+        (s, i) => i === 0 || parseInt(s.start) === parseInt(sorted[i - 1].end)
+      );
+
+      return isContinuous ? sorted : [slot];
     });
   };
 
@@ -127,7 +168,7 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
             mode="single"
             selected={date}
             onSelect={setDate}
-            disabled={[...bookedDates].map((d) => new Date(d))}
+            disabled={[...bookedTimeRanges].map((d) => new Date(d))}
             className="mx-auto"
             classNames={{
               months:
@@ -161,52 +202,44 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
               Available times for {format(date, "MMMM do, yyyy")}:
             </div>
             <div className="h-[300px] space-y-2 overflow-auto rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
-              {TIME_SLOTS.map((slot, i) => (
-                <button
-                  key={i}
-                  disabled={!slot.available}
-                  onClick={() => toggleSlot(slot)}
-                  // className={`
-                  //   w-full rounded-lg border p-3 text-left transition-all
-                  //   ${
-                  //     !slot.available
-                  //       ? "cursor-not-allowed border-neutral-200 bg-neutral-50 opacity-50"
-                  //       : "border-neutral-200 hover:border-rose-500 hover:shadow-md"
-                  //   }
-                  //   ${
-                  //     selectedSlots.includes(slot)
-                  //       ? "border-rose-500 bg-rose-50 text-rose-900 shadow-sm"
-                  //       : "bg-white"
-                  //   }
-                  // `}
-                  className={`p-2 rounded border ${
-                    selectedSlots.some((s) => s.start === slot.start)
-                      ? "bg-rose-100 border-rose-500"
-                      : "border-gray-200 hover:border-rose-300"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">
-                      {slot.start} - {slot.end}
-                    </span>
-                    {selectedSlots.includes(slot) && (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                  </div>
-                </button>
-              ))}
+              {TIME_SLOTS.map((slot, i) => {
+                const isAvailable = isSlotAvailable(slot);
+                return (
+                  <button
+                    key={i}
+                    disabled={!isAvailable}
+                    onClick={() => isAvailable && toggleSlot(slot)}
+                    className={`w-full rounded-lg border p-3 text-left transition-all ${
+                      !isAvailable
+                        ? "cursor-not-allowed border-neutral-200 bg-neutral-50 opacity-50"
+                        : selectedSlots.some((s) => s.start === slot.start)
+                        ? "border-rose-500 bg-rose-50 text-rose-900 shadow-sm"
+                        : "border-neutral-200 hover:border-rose-300 hover:shadow-md"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">
+                        {slot.start} - {slot.end}
+                      </span>
+                      {selectedSlots.includes(slot) && (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
             {/* {selectedSlots.length > 0 &&( */}
             {/* )} */}
@@ -246,7 +279,7 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
             onClick={handleBooking}
             className="w-full rounded-lg bg-rose-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-rose-700 hover:shadow-md"
           >
-            {user_id ? "Book Now" : "Login to Book"}
+            {user1 ? "Book Now" : "Login to Book"}
           </button>
         </div>
       </div>

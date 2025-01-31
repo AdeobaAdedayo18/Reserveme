@@ -5,8 +5,6 @@ interface DataTableProps {
 }
 
 const DataTable = ({ data }: DataTableProps) => {
-  console.log(data);
-
   // Component logic here
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
@@ -51,7 +49,7 @@ const DataTable = ({ data }: DataTableProps) => {
                   <span
                     className={`inline-flex rounded-full px-2 py-1 text-xs font-medium
           ${
-            booking.status === "Confirmed"
+            booking.status === "confirmed"
               ? "bg-green-100 text-green-700"
               : "bg-yellow-100 text-yellow-700"
           }

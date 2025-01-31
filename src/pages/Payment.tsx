@@ -36,10 +36,10 @@ const Payment = () => {
     // isLoading: bookingLoading,
     // error: bookingError,
   } = useData<BookingResponse>(`/bookings/${spaceID}/`);
-  const { addData, responseData } = useAdd<
+  const { addData } = useAdd<
     BookingPaymentResponse,
     BookingResponsePaymentConfirmed
-  >(`/bookings/${spaceID}/payment`);
+  >(`/bookings/${spaceID}/confirm`);
 
   const getBookingDetails = (booking: BookingResponse) => {
     const startDate = parseISO(booking.start_time);
@@ -65,7 +65,7 @@ const Payment = () => {
   };
   const bookingDetails = booking ? getBookingDetails(booking) : null;
   const config = {
-    public_key: "FLWPUBK_TEST-e7c8f332b9d34b01b958cf4f4f643018-X",
+    public_key: "FLWPUBK_TEST-3aa975702aa5d44b3b39177f21d1c628-X",
     tx_ref: data?.tx_ref!,
     amount: data?.amount!,
     currency: data?.currency!,
@@ -82,42 +82,42 @@ const Payment = () => {
     },
   };
   const handleFlutterPayment = useFlutterwave(config);
-  const verifyPaymentFlutterwave = async (transaction_id: number) => {
-    try {
-      const response = await fetch(
-        `https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer FLWPUBK_TEST-e7c8f332b9d34b01b958cf4f4f643018-X`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  // const verifyPaymentFlutterwave = async (transaction_id: number) => {
+  //   try {
+  //     const response = await fetch(
+  //       `https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           Authorization: `Bearer FLWSECK_TEST-0f9582caca544f84d030d2395b8d7702-X`,
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
 
-      const result = await response.json();
-      return result.status === "success" && result.data.status === "successful";
-    } catch (error) {
-      toast({
-        title: "Verification Error",
-        description: "Could not verify transaction with Flutterwave",
-        variant: "destructive",
-      });
-      return false;
-    }
-  };
+  //     const result = await response.json();
+  //     return result.status === "success" && result.data.status === "successful";
+  //   } catch (error) {
+  //     toast({
+  //       title: "Verification Error",
+  //       description: "Could not verify transaction with Flutterwave",
+  //       variant: "destructive",
+  //     });
+  //     return false;
+  //   }
+  // };
 
   const verifyPaymentServer = async (
     transaction_id: number,
     tx_ref: string
   ) => {
     try {
-      await addData({
+      const res = await addData({
         tx_ref: tx_ref,
         transaction_id: transaction_id,
       });
 
-      return responseData?.status === "confirmed";
+      return res?.status === "confirmed";
     } catch (error) {
       toast({
         title: "Server Error",
@@ -144,17 +144,17 @@ const Payment = () => {
           }
 
           // Verify with Flutterwave first
-          const flutterwaveVerified = await verifyPaymentFlutterwave(
-            response.transaction_id
-          );
-          if (!flutterwaveVerified) {
-            toast({
-              title: "Verification Failed",
-              description: "Payment verification with Flutterwave failed",
-              variant: "destructive",
-            });
-            return;
-          }
+          // const flutterwaveVerified = await verifyPaymentFlutterwave(
+          //   response.transaction_id
+          // );
+          // if (!flutterwaveVerified) {
+          //   toast({
+          //     title: "Verification Failed",
+          //     description: "Payment verification with Flutterwave failed",
+          //     variant: "destructive",
+          //   });
+          //   return;
+          // }
 
           // Then verify with our server
           const serverVerified = await verifyPaymentServer(
@@ -163,6 +163,8 @@ const Payment = () => {
           );
 
           if (!serverVerified) {
+            console.log(serverVerified);
+
             toast({
               title: "Server Verification Failed",
               description: "Could not confirm payment with our servers",
@@ -177,7 +179,7 @@ const Payment = () => {
             description: "Your payment has been confirmed!",
           });
           closePaymentModal();
-          navigate(`/receipt/${response.tx_ref}`);
+          navigate(`/receipt/${spaceID}`);
         } catch (error) {
           toast({
             title: "Error",

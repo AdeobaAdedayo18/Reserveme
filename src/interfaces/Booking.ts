@@ -46,3 +46,35 @@ export interface BookingPaymentResponse{
         tx_ref: string;
         transaction_id: number;
 }
+
+
+export interface BookingPaymentReceipt{
+        receipt_no: string;
+        company_name: string;
+        user: {
+                name: string;
+                email: string;
+                phone_number: string;
+        };
+        space: {
+                name: string;
+                location: string;
+        };
+        booking: {
+                date: string;
+                time: string;
+                duration: string;
+                purpose: string;
+        };
+        payment: {
+                amount: number;
+                status: string;
+                transaction_id: number;
+                payment_date: string;
+        };
+        footer: {
+                thank_you_message: string;
+                support_email: string;
+                terms_and_conditions: string;
+        };
+}

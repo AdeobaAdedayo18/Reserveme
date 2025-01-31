@@ -1,78 +1,41 @@
+import { getSession } from "@/utils/session";
 import {
   BarChart3,
   Building2,
   Calendar,
   ChevronDown,
-  DollarSign,
+  Home,
   LogOut,
   Settings,
   Users,
 } from "lucide-react";
 import { useState } from "react";
-import DataTable from "../components/DataTable";
-import SidebarNav from "../components/SidebarNav";
-import StatCard from "../components/statCard";
-import { getSession } from "@/utils/session";
 import { useNavigate } from "react-router-dom";
+import SidebarNav from "../components/SidebarNav";
+import AdminMainDashboard from "./AdminMainDashboard";
+import AdminBookingsPage from "./AdminBookingsPage";
 import { useAllBookings } from "@/hooks/useAdminData";
-import useData from "@/hooks/useData";
-import { Space } from "@/interfaces/Spaces";
-
-// Sample data - In a real app, this would come from an API
-// const recentBookings = [
-//   {
-//     id: 1,
-//     venue: "Cucrid Auditorium",
-//     user: "John Doe",
-//     date: "2024-01-20",
-//     status: "Confirmed",
-//     amount: 450,
-//   },
-//   {
-//     id: 2,
-//     venue: "HSL Studio",
-//     user: "Jane Smith",
-//     date: "2024-01-21",
-//     status: "Pending",
-//     amount: 300,
-//   },
-//   // Add more bookings as needed
-// ];
 
 const session = await getSession();
 const role = (await session)?.role;
 console.log(role);
+const navigation = [
+  { name: "Dashboard", icon: Home, path: "/admin" },
+  { name: "Venues", icon: Building2, path: "/admin/venues" },
+  { name: "Bookings", icon: Calendar, path: "/admin/bookings" },
+  { name: "Users", icon: Users, path: "/admin/users" },
+  { name: "Analytics", icon: BarChart3, path: "/admin/analytics" },
+  { name: "Settings", icon: Settings, path: "/admin/settings" },
+];
 
 export default function AdminDashboard() {
-  const navigate = useNavigate();
   console.log(role);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [currentTab, setCurrentTab] = useState<string>("dashboard");
+  const [currentTab, setCurrentTab] = useState<string>("Dashboard");
   const {
     data: recentBookings,
     //  isLoading, error
   } = useAllBookings();
-  const {
-    data: Venues,
-    //  isLoading, error
-  } = useData<Space[]>("/spaces/");
-  console.log(role?.value);
-
-  const isadmin = role === "admin";
-  if (!isadmin) {
-    navigate("/locations");
-    console.log("true ooo");
-  }
-
-  let revenue = 0;
-
-  const CalculateRevenue = () => {
-    for (let i = 0; i < recentBookings?.length!; i++) {
-      revenue += recentBookings![i]?.total_cost;
-    }
-    return revenue;
-  };
-  revenue = CalculateRevenue();
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -85,7 +48,28 @@ export default function AdminDashboard() {
           <span className="text-lg font-semibold">ReserveMe</span>
         </div>
         <div className="p-4">
-          <SidebarNav />
+          <nav className="space-y-1">
+            {navigation.map((item) => {
+              const isActive = currentTab === item.name;
+              return (
+                <button
+                  key={item.name}
+                  onClick={() => setCurrentTab(item.name)}
+                  className={`
+              flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors
+              ${
+                isActive
+                  ? "bg-gray-100 text-gray-900"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              }
+            `}
+                >
+                  <item.icon className="h-5 w-5" />
+                  {item.name}
+                </button>
+              );
+            })}
+          </nav>
         </div>
       </div>
 
@@ -125,83 +109,11 @@ export default function AdminDashboard() {
         </header>
 
         {/* Dashboard Content */}
-        <main className="flex-1 p-8">
-          {/* Stats Grid */}
-          <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard
-              title="Total Bookings"
-              value={recentBookings?.length}
-              icon={Calendar}
-              trend={{ value: 12, isPositive: true }}
-            />
-            <StatCard
-              title="Active Venues"
-              value={Venues?.length}
-              icon={Building2}
-              trend={{ value: 8, isPositive: true }}
-            />
-            <StatCard
-              title="Total Users"
-              value="892"
-              icon={Users}
-              trend={{ value: 15, isPositive: true }}
-            />
-            <StatCard
-              title="Revenue"
-              value={"$" + revenue}
-              icon={DollarSign}
-              trend={{ value: 23, isPositive: true }}
-            />
-          </div>
 
-          {/* Charts Section */}
-          <div className="mb-8 grid gap-6 lg:grid-cols-2">
-            <div className="rounded-xl border border-gray-200 bg-white p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Booking Trends
-                </h2>
-                <select className="rounded-lg border border-gray-200 px-3 py-2 text-sm">
-                  <option>Last 7 days</option>
-                  <option>Last 30 days</option>
-                  <option>Last 90 days</option>
-                </select>
-              </div>
-              <div className="h-[300px] w-full">
-                <BarChart3 className="h-full w-full text-gray-300" />
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-gray-200 bg-white p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Revenue Analytics
-                </h2>
-                <select className="rounded-lg border border-gray-200 px-3 py-2 text-sm">
-                  <option>Last 7 days</option>
-                  <option>Last 30 days</option>
-                  <option>Last 90 days</option>
-                </select>
-              </div>
-              <div className="h-[300px] w-full">
-                <BarChart3 className="h-full w-full text-gray-300" />
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Bookings Table */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Recent Bookings
-              </h2>
-              <button className="text-sm font-medium text-gray-600 hover:text-gray-900">
-                View all
-              </button>
-            </div>
-            <DataTable data={recentBookings} />
-          </div>
-        </main>
+        {currentTab === "Dashboard" && <AdminMainDashboard />}
+        {currentTab === "Bookings" && (
+          <AdminBookingsPage data={recentBookings} />
+        )}
       </div>
     </div>
   );

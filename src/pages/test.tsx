@@ -1,21 +1,14 @@
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { useReactToPrint } from "react-to-print";
+import { useRef } from "react";
 
-const ToastDemo = () => {
-  const { toast } = useToast();
-
+const Test = () => {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const reactToPrintFn = useReactToPrint({ contentRef });
   return (
-    <Button
-      onClick={() => {
-        toast({
-          title: "Scheduled: Catch up",
-          description: "Friday, February 10, 2023 at 5:57 PM",
-        });
-      }}
-    >
-      Show Toast
-    </Button>
+    <div>
+      <button onClick={() => reactToPrintFn()}>Print</button>
+      <div ref={contentRef}>Content to print</div>
+    </div>
   );
 };
-
-export default ToastDemo;
+export default Test;

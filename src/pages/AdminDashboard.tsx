@@ -1,35 +1,30 @@
+import { useAllBookings } from "@/hooks/useAdminData";
 import { getSession } from "@/utils/session";
 import {
-  BarChart3,
   Building2,
   Calendar,
   ChevronDown,
   Home,
   LogOut,
   Settings,
-  Users,
 } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import SidebarNav from "../components/SidebarNav";
-import AdminMainDashboard from "./AdminMainDashboard";
 import AdminBookingsPage from "./AdminBookingsPage";
-import { useAllBookings } from "@/hooks/useAdminData";
+import AdminMainDashboard from "./AdminMainDashboard";
+import AdminVenuesPage from "./AdminVenues";
 
 const session = await getSession();
 const role = (await session)?.role;
-console.log(role);
 const navigation = [
   { name: "Dashboard", icon: Home, path: "/admin" },
   { name: "Venues", icon: Building2, path: "/admin/venues" },
   { name: "Bookings", icon: Calendar, path: "/admin/bookings" },
-  { name: "Users", icon: Users, path: "/admin/users" },
-  { name: "Analytics", icon: BarChart3, path: "/admin/analytics" },
-  { name: "Settings", icon: Settings, path: "/admin/settings" },
+  // { name: "Users", icon: Users, path: "/admin/users" },
+  // { name: "Analytics", icon: BarChart3, path: "/admin/analytics" },
+  // { name: "Settings", icon: Settings, path: "/admin/settings" },
 ];
 
 export default function AdminDashboard() {
-  console.log(role);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [currentTab, setCurrentTab] = useState<string>("Dashboard");
   const {
@@ -54,7 +49,11 @@ export default function AdminDashboard() {
               return (
                 <button
                   key={item.name}
-                  onClick={() => setCurrentTab(item.name)}
+                  onClick={() => {
+                    setCurrentTab(item.name);
+
+                    console.log(item.name);
+                  }}
                   className={`
               flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors
               ${
@@ -114,6 +113,9 @@ export default function AdminDashboard() {
         {currentTab === "Bookings" && (
           <AdminBookingsPage data={recentBookings} />
         )}
+        {/* {currentTab === "Users" && <AdminUsersPage />} */}
+        {currentTab === "Venues" && <AdminVenuesPage />}
+        {/* {currentTab === "Analytics" && <AdminAnalyticsPage />} */}
       </div>
     </div>
   );

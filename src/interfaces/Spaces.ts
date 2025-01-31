@@ -1,5 +1,5 @@
 export interface Space {
-    id: string;
+    id?: string;
     name: string;
     description: string;
     capacity: number;
@@ -7,7 +7,7 @@ export interface Space {
     location: string;
     amenities: string[];
     hourly_rate: number;
-    images: string[];
+    images?: string[];
 }
 
 export interface SpaceBookingTimeSlot {

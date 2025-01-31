@@ -1,15 +1,12 @@
+import { BookingTrendsChart } from "@/components/BookingTrendsChart";
 import DataTable from "@/components/DataTable";
+import { RevenueAnalyticsChart } from "@/components/RevenueAnalytics";
 import StatCard from "@/components/statCard";
+
 import { useAllBookings } from "@/hooks/useAdminData";
 import useData from "@/hooks/useData";
-import { Space } from "@/interfaces/Spaces";
-import {
-  BarChart3,
-  Building2,
-  Calendar,
-  DollarSign,
-  Users,
-} from "lucide-react";
+import type { Space } from "@/interfaces/Spaces";
+import { Building2, Calendar, DollarSign } from "lucide-react";
 
 const AdminMainDashboard = () => {
   const {
@@ -20,6 +17,7 @@ const AdminMainDashboard = () => {
     data: Venues,
     //  isLoading, error
   } = useData<Space[]>("/spaces/");
+
   let revenue = 0;
 
   const CalculateRevenue = () => {
@@ -29,6 +27,7 @@ const AdminMainDashboard = () => {
     return revenue;
   };
   revenue = CalculateRevenue();
+
   return (
     <main className="flex-1 p-8">
       {/* Stats Grid */}
@@ -46,12 +45,6 @@ const AdminMainDashboard = () => {
           trend={{ value: 8, isPositive: true }}
         />
         <StatCard
-          title="Total Users"
-          value="892"
-          icon={Users}
-          trend={{ value: 15, isPositive: true }}
-        />
-        <StatCard
           title="Revenue"
           value={"$" + revenue}
           icon={DollarSign}
@@ -61,37 +54,8 @@ const AdminMainDashboard = () => {
 
       {/* Charts Section */}
       <div className="mb-8 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-gray-200 bg-white p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Booking Trends
-            </h2>
-            <select className="rounded-lg border border-gray-200 px-3 py-2 text-sm">
-              <option>Last 7 days</option>
-              <option>Last 30 days</option>
-              <option>Last 90 days</option>
-            </select>
-          </div>
-          <div className="h-[300px] w-full">
-            <BarChart3 className="h-full w-full text-gray-300" />
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-gray-200 bg-white p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Revenue Analytics
-            </h2>
-            <select className="rounded-lg border border-gray-200 px-3 py-2 text-sm">
-              <option>Last 7 days</option>
-              <option>Last 30 days</option>
-              <option>Last 90 days</option>
-            </select>
-          </div>
-          <div className="h-[300px] w-full">
-            <BarChart3 className="h-full w-full text-gray-300" />
-          </div>
-        </div>
+        <BookingTrendsChart bookings={recentBookings || []} />
+        <RevenueAnalyticsChart bookings={recentBookings || []} />
       </div>
 
       {/* Recent Bookings Table */}

@@ -9,8 +9,7 @@ import useData from "../hooks/useData";
 import { SpaceBookingTimeSlot } from "../interfaces/Spaces";
 import { getSession } from "@/utils/session";
 interface VenueBookingProps {
-  price: number;
-  user: string;
+  price: number | undefined;
   id: string | undefined;
 }
 
@@ -39,7 +38,7 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
 
   // Calculate total amount whenever slots change
   useEffect(() => {
-    setTotalAmount(selectedSlots.length * price);
+    setTotalAmount(selectedSlots.length * price!);
   }, [selectedSlots, price]);
 
   // Generate time slots
@@ -168,7 +167,7 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
             mode="single"
             selected={date}
             onSelect={setDate}
-            disabled={[...bookedTimeRanges].map((d) => new Date(d))}
+            // disabled={[...bookedTimeRanges].map((d) => new Date(d))}
             className="mx-auto"
             classNames={{
               months:

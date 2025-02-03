@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import AdminBookingsPage from "./AdminBookingsPage";
 import AdminMainDashboard from "./AdminMainDashboard";
 import AdminVenuesPage from "./AdminVenues";
+import { toast } from "@/hooks/use-toast";
 
 const navigation = [
   { name: "Dashboard", icon: Home, path: "/admin" },
@@ -37,6 +38,18 @@ export default function AdminDashboard() {
 
     checkSession();
   }, [navigate]);
+
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      // 768px is typical tablet breakpoint
+      toast({
+        title: "Viewing on a small screen",
+        description:
+          "This page is better viewed on a bigger device or in landscape orientation",
+        duration: 5000,
+      });
+    }
+  }, []);
 
   if (!session) {
     return <div>Loading...</div>;

@@ -73,14 +73,7 @@ export const router = createBrowserRouter([
       </Suspense>
     ),
   },
-  {
-    path: "/receipt/",
-    element: (
-      // <Suspense fallback={<Loading />}>
-      <ReceiptPage />
-      // </Suspense>
-    ),
-  },
+
   {
     path: "/test",
     element: <Test />,

@@ -23,6 +23,8 @@ export const getSession = async () => {
         if (refresh_token && !isTokenExpired(String(refresh_token))) {
             const newAccessToken = await refreshAccessToken(String(refresh_token));
             if (newAccessToken) {
+               
+                
                 Cookies.set("access_token", newAccessToken, COOKIE_OPTIONS);
                 return { access_token: newAccessToken,  refresh_token: String(refresh_token), 
                     user_id: String(user_id), 
@@ -50,8 +52,10 @@ export const refreshAccessToken = async (refreshToken: string) => {
     try {
         const response:response = await axios.post(
             "http://127.0.0.1:8000/auth/refresh-token",
-            { refresh: refreshToken }
+            { refresh_token: refreshToken }
         );
+        
+        
         return response.access_token;
     } catch (error) {
         console.error("Error refreshing token:", error);

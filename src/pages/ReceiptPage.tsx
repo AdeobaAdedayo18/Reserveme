@@ -2,12 +2,13 @@ import useData from "@/hooks/useData";
 import { BookingPaymentReceipt } from "@/interfaces/Booking";
 import { Printer } from "lucide-react";
 import { useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 
 const ReceiptPage = () => {
   const receiptRef = useRef<HTMLDivElement>(null);
   const { bookingID } = useParams<{ bookingID: string }>();
+  const navigate = useNavigate();
 
   const { data: orderDetails } = useData<BookingPaymentReceipt>(
     `/bookings/${bookingID}/receipt`
@@ -19,37 +20,28 @@ const ReceiptPage = () => {
     onAfterPrint: () => console.log("Printed successfully"),
   });
 
-  // const handlePrint = useReactToPrint({
-  //   getContent: () => receiptRef.current,
-  //   documentTitle: `Receipt-${orderDetails.orderId}`,
-  //   onAfterPrint: () => alert("Receipt has been successfully printed!"),
-  // });
-  //   console.log(receiptRef.current);
-
-  //   const handlePrint = useReactToPrint({
-  //     getContent: () => {
-  //       if (!receiptRef.current) {
-  //         console.error("There is nothing to print");
-  //         return null;
-  //       }
-  //       return receiptRef.current;
-  //     },
-  //     documentTitle: `Receipt-${orderDetails.orderId}`,
-  //   });
-
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="mx-auto max-w-2xl px-4">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900">Booking Receipt</h1>
-          <button
-            onClick={() => handlePrint()}
-            className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800"
-            aria-label="Print Receipt"
-          >
-            <Printer className="h-4 w-4" />
-            Print Receipt
-          </button>
+          <div className="flex gap-4">
+            <button
+              onClick={() => navigate("/locations")}
+              className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800"
+              aria-label="Back to Locations"
+            >
+              Back to Locations
+            </button>
+            <button
+              onClick={() => handlePrint()}
+              className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800"
+              aria-label="Print Receipt"
+            >
+              <Printer className="h-4 w-4" />
+              Print Receipt
+            </button>
+          </div>
         </div>
 
         {/* Printable Receipt Content */}

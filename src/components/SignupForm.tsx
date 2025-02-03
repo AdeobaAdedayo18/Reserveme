@@ -5,13 +5,14 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { registerUser } from "@/utils/auth";
 import { useNavigate } from "react-router-dom";
+import { toast } from "@/hooks/use-toast";
 
 const signUpSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
-  fullName: z
+  username: z
     .string()
     .min(2, { message: "Name must be at least 2 characters" }),
-  phoneNumber: z
+  phone_number: z
     .string()
     .min(10, { message: "Phone number must be at least 10 digits" }),
   password: z
@@ -26,6 +27,12 @@ const signUpSchema = z.object({
 });
 
 type FormData = z.infer<typeof signUpSchema>;
+interface response {
+  detail?: string;
+  success: boolean;
+  message: any;
+  redirect?: string;
+}
 
 export default function SignUpForm() {
   const navigate = useNavigate();
@@ -44,13 +51,17 @@ export default function SignUpForm() {
     console.log(data);
     reset();
     try {
-      await registerUser(data);
+      const response: response = await registerUser(data);
 
-      alert("Registration successful");
-      navigate("/locations");
+      if (response.success === false) {
+        toast({ title: "Authentication failed", variant: "destructive" });
+      } else {
+        toast({ title: "Registration Successful" });
+        navigate("/locations");
+      }
     } catch (error: any) {
       if (error.message) {
-        alert(error.message);
+        toast({ title: "Authentication failed", variant: "destructive" });
       }
     }
   };
@@ -87,14 +98,14 @@ export default function SignUpForm() {
             Full Name
           </label>
           <input
-            {...register("fullName")}
+            {...register("username")}
             type="text"
             placeholder="Enter your full name"
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#B32406]"
           />
-          {errors.fullName && (
+          {errors.username && (
             <p className="text-[11px] text-red-500 font-bold">
-              {errors.fullName.message}
+              {errors.username.message}
             </p>
           )}
         </div>
@@ -108,15 +119,15 @@ export default function SignUpForm() {
               +234
             </div>
             <input
-              {...register("phoneNumber")}
+              {...register("phone_number")}
               type="tel"
               placeholder="Enter your phone number"
               className="flex-1 px-4 py-2 border border-l-0 rounded-r-md focus:outline-none focus:ring-2 focus:ring-[#B32406]"
             />
           </div>
-          {errors.phoneNumber && (
+          {errors.phone_number && (
             <p className="text-[11px] text-red-500 font-bold">
-              {errors.phoneNumber.message}
+              {errors.phone_number.message}
             </p>
           )}
         </div>

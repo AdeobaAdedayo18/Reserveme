@@ -1,68 +1,88 @@
+import { lazy, Suspense } from "react";
+import { Oval } from "react-loader-spinner";
 import { createBrowserRouter } from "react-router-dom";
-import { Suspense, lazy } from "react";
+import LandingPage from "./pages/LandingPage";
+import LocationDetail1 from "./pages/LocationDetail";
+import LoginPage from "./pages/LoginPage";
+import Payment from "./pages/Payment";
+import ShowCase from "./pages/ShowCase";
+import SignupPage from "./pages/SignupPage";
+import Test from "./pages/test";
 
-// Create a loading component for Suspense fallback
-const Loading = () => <div>Loading...</div>;
+const Loading = () => (
+  <Oval
+    height="60"
+    width="60"
+    // radius="9"
+    color="black"
+    secondaryColor="gray"
+    ariaLabel="three-dots-loading"
+    // wrapperStyle
+    wrapperClass="flex justify-center items-center h-screen"
+  />
+);
 
-// Lazy load all page components
+// Lazy-load non-critical pages
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-const LandingPage = lazy(() => import("./pages/LandingPage"));
-const LocationDetail1 = lazy(() => import("./pages/LocationDetail"));
-const LoginPage = lazy(() => import("./pages/LoginPage"));
-const Payment = lazy(() => import("./pages/Payment"));
-const ReceiptPage = lazy(() => import("./pages/ReceiptPage"));
-const ShowCase = lazy(() => import("./pages/ShowCase"));
-const SignupPage = lazy(() => import("./pages/SignupPage"));
-const Test = lazy(() => import("./pages/test"));
-
-// Create a wrapper component to handle Suspense
-import { ComponentType } from "react";
-
-const LazyLoader = ({
-  lazyComponent: LazyComponent,
-}: {
-  lazyComponent: ComponentType;
-}) => (
-  <Suspense fallback={<Loading />}>
-    <LazyComponent />
-  </Suspense>
+const ReceiptPage = lazy(
+  () => import(/* webpackPrefetch: true */ "./pages/ReceiptPage")
 );
 
 export const router = createBrowserRouter([
   {
     path: "/login",
-    element: <LazyLoader lazyComponent={LoginPage} />,
+    element: <LoginPage />,
   },
   {
     path: "/signup",
-    element: <LazyLoader lazyComponent={SignupPage} />,
+    element: <SignupPage />,
   },
   {
     path: "/",
-    element: <LazyLoader lazyComponent={LandingPage} />,
+    element: <LandingPage />,
   },
   {
     path: "/admin",
-    element: <LazyLoader lazyComponent={AdminDashboard} />,
+    element: (
+      <Suspense fallback={<Loading />}>
+        <AdminDashboard />
+      </Suspense>
+    ),
   },
   {
     path: "/locations",
-    element: <LazyLoader lazyComponent={ShowCase} />,
+    element: <ShowCase />,
   },
   {
     path: "/location/:spaceId",
-    element: <LazyLoader lazyComponent={LocationDetail1} />,
+    element: <LocationDetail1 />,
   },
   {
     path: "/payment-confirmation/:spaceID",
-    element: <LazyLoader lazyComponent={Payment} />,
+    element: <Payment />,
   },
   {
     path: "/receipt/:bookingID",
-    element: <LazyLoader lazyComponent={ReceiptPage} />,
+    element: <ReceiptPage />,
+  },
+  {
+    path: "/receipt/:bookingID",
+    element: (
+      <Suspense fallback={<Loading />}>
+        <ReceiptPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: "/receipt/",
+    element: (
+      // <Suspense fallback={<Loading />}>
+      <ReceiptPage />
+      // </Suspense>
+    ),
   },
   {
     path: "/test",
-    element: <LazyLoader lazyComponent={Test} />,
+    element: <Test />,
   },
 ]);

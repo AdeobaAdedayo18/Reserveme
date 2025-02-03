@@ -1,11 +1,11 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { toast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocation, useNavigate } from "react-router-dom";
 import calendarlogo from "../assets/Black and Red Minimal Calendar with Clock Logo (2).svg";
 import { loginUser } from "../utils/auth";
-import { toast } from "@/hooks/use-toast";
 const schema = z.object({
   email: z.string().min(1, { message: "Email is required" }),
   password: z
@@ -27,28 +27,31 @@ const LoginForm = () => {
   const callbackUrl = params.get("callbackUrl") || "/locations";
 
   const onSubmit = async (data: any) => {
+    reset();
     try {
-      const response = loginUser(data);
-      reset();
-
-      const bookingParams = new URLSearchParams({
-        purpose: params.get("purpose") || "",
-        date: params.get("date") || "",
-        startTime: params.get("startTime") || "",
-        endTime: params.get("endTime") || "",
-      });
-      if ((await response).role === "admin") {
-        navigate("/admin");
+      const response = await loginUser(data);
+      if (response.success === false) {
+        toast({ title: "Authentication failed", variant: "destructive" });
       } else {
-        // navigate("/location")
-        // if (bookingParams.toString() === "purpose=&date=&startTime=&endTime=") {
-        navigate(`${callbackUrl}?${bookingParams.toString()}`);
-        // } else {
-        // navigate("/locations");
-        // }
-      }
+        const bookingParams = new URLSearchParams({
+          purpose: params.get("purpose") || "",
+          date: params.get("date") || "",
+          startTime: params.get("startTime") || "",
+          endTime: params.get("endTime") || "",
+        });
+        if ((await response).role === "admin") {
+          navigate("/admin");
+        } else {
+          // navigate("/location")
+          // if (bookingParams.toString() === "purpose=&date=&startTime=&endTime=") {
+          navigate(`${callbackUrl}?${bookingParams.toString()}`);
+          // } else {
+          // navigate("/locations");
+          // }
+        }
 
-      toast({ title: "Authentication Successful" });
+        toast({ title: "Authentication Successful" });
+      }
     } catch (error) {
       toast({ title: "Authentication failed", variant: "destructive" });
     }

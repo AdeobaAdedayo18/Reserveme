@@ -33,12 +33,12 @@ const DataTable = ({ data }: DataTableProps) => {
             {data?.map((booking) => (
               <tr>
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                  {/* {booking.space_id} */}
+                  {booking.space_name}
                   Cucrid Auditorium
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                  {/* {booking.user_id} */}
-                  Jane Doe
+                  {booking.username}
+                  {/* Jane Doe */}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
                   {/* {booking.created_at} */}

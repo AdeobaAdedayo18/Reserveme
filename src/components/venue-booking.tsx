@@ -13,13 +13,11 @@ interface VenueBookingProps {
   id: string | undefined;
 }
 
-const session = await getSession();
-const user1 = (await session)?.user_id;
-
 const VenueBooking = ({ price, id }: VenueBookingProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const [user, setUser] = useState<string | null>(null);
   const queryParams = new URLSearchParams(location.search);
 
   const [date, setDate] = useState<Date | undefined>(
@@ -30,6 +28,13 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
     { start: string; end: string }[]
   >([]);
   const [totalAmount, setTotalAmount] = useState(0);
+  useEffect(() => {
+    const checkSession = async () => {
+      const session = await getSession();
+      setUser(session?.user_id || null);
+    };
+    checkSession();
+  }, []);
 
   const { addData } = useAdd<Booking, any>("/bookings/");
   const { data: bookedSlots } = useData<SpaceBookingTimeSlot[]>(
@@ -278,7 +283,7 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
             onClick={handleBooking}
             className="w-full rounded-lg bg-rose-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-rose-700 hover:shadow-md"
           >
-            {user1 ? "Book Now" : "Login to Book"}
+            {user ? "Book Now" : "Login to Book"}
           </button>
         </div>
       </div>

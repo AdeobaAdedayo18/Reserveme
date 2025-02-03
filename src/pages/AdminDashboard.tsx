@@ -1,20 +1,12 @@
 import { useAllBookings } from "@/hooks/useAdminData";
 import { getSession } from "@/utils/session";
-import {
-  Building2,
-  Calendar,
-  ChevronDown,
-  Home,
-  LogOut,
-  Settings,
-} from "lucide-react";
-import { useState } from "react";
+import { Building2, Calendar, Home } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AdminBookingsPage from "./AdminBookingsPage";
 import AdminMainDashboard from "./AdminMainDashboard";
 import AdminVenuesPage from "./AdminVenues";
 
-const session = await getSession();
-const role = (await session)?.role;
 const navigation = [
   { name: "Dashboard", icon: Home, path: "/admin" },
   { name: "Venues", icon: Building2, path: "/admin/venues" },
@@ -25,12 +17,38 @@ const navigation = [
 ];
 
 export default function AdminDashboard() {
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [session, setSession] = useState<{
+    access_token: string;
+    refresh_token: string;
+    user_id: string;
+    role: string;
+  } | null>(null);
+  const navigate = useNavigate();
+  // const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [currentTab, setCurrentTab] = useState<string>("Dashboard");
   const {
     data: recentBookings,
     //  isLoading, error
   } = useAllBookings();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const sessionData = await getSession();
+      setSession(sessionData);
+
+      if (sessionData?.role !== "admin") {
+        navigate("/locations");
+      }
+    };
+
+    checkSession();
+  }, [navigate]);
+  // Return early if session not loaded yet
+  if (!session) {
+    return <div>Loading...</div>; // Add a loading state
+  }
+
+  // const role = session?.role;
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -79,7 +97,7 @@ export default function AdminDashboard() {
           <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
 
           <div className="relative">
-            <button
+            {/* <button
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
               className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
@@ -90,8 +108,8 @@ export default function AdminDashboard() {
               />
               <span>Admin User</span>
               <ChevronDown className="h-4 w-4" />
-            </button>
-
+            </button> */}
+            {/* 
             {isUserMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 rounded-lg border border-gray-200 bg-white py-2 shadow-lg">
                 <button className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
@@ -103,7 +121,7 @@ export default function AdminDashboard() {
                   Logout
                 </button>
               </div>
-            )}
+            )} */}
           </div>
         </header>
 

@@ -1,329 +1,122 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import pic1 from "../assets/pexels-daiangan-102129.jpg";
 import pic2 from "../assets/pexels-kaip-996329.jpg";
 import pic3 from "../assets/pexels-pixabay-325876.jpg";
 import pic4 from "../assets/pexels-solliefoto-298863.jpg";
-import { DayPicker } from "react-day-picker";
-import { Calendar } from "../components/ui/calendar";
-interface Facilties {
-  icon: string;
-  text: string;
-}
-const LocationDetail = () => {
-  const navigate = useNavigate();
-  const [image, setImage] = useState(0);
-  const [date, setDate] = React.useState<Date | undefined>(new Date());
-  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
-  console.log(selectedDay);
+import VenueBooking from "../components/venue-booking";
+import VenueGallery from "../components/venue-gallery";
+import VenueHeader from "../components/venure-header";
+import useData from "../hooks/useData";
+import { Space } from "../interfaces/Spaces";
 
-  const preselectedDays = ["2025-01-02", "2025-01-03", "2025-01-05"];
-  const disabledDays = preselectedDays.map((date) => new Date(date));
-  const properties = ["cat", "dog", "mouse", "cat", "dog", "mouse"];
-  const productImages = [pic1, pic2, pic3, pic4];
-  const facilities: Facilties[] = [
-    { icon: "living room", text: "Shared Living Room" },
-    { icon: "wifi", text: "Wifi" },
-    { icon: "water-heater", text: "Water Heater" },
-    { icon: "kitchen", text: "Kitchen" },
-    { icon: "parking", text: "Parking" },
-    { icon: "gym", text: "Gym" },
-  ];
+const DEMO_IMAGES = [pic1, pic2, pic3, pic4];
 
-  const goToPrevious = () => {
-    const isFirstSlide = image === 0;
-    const newIndex = isFirstSlide ? productImages.length - 1 : image - 1;
-    setImage(newIndex);
-  };
-  const goToNext = () => {
-    const isLastSlide = image === productImages.length - 1;
-    const newIndex = isLastSlide ? 0 : image + 1;
-    setImage(newIndex);
-  };
+export default function LocationDetail() {
+  const { spaceId } = useParams<{ spaceId: string }>();
+  // const { time } = useParams<{ spaceId: string }>();
+
+  const { data } = useData<Space>(`/spaces/${spaceId}/`);
+
   return (
-    <div className="bg-white h-screen w-screen px-28 py-7 overflow-x-hidden">
-      <div className="h-16 w-full flex flex-row justify-between">
-        <div className="max-h-8 w-8 bg-blue-500">Logo</div>
-        <div>
-          <button
-            className="border border-2 border-slate-300 hover:border-slate-400 rounded-md p-2 max-h-full flex felx-row gap-2 items-center"
-            onClick={() => {
-              navigate(-1);
-            }}
-          >
-            <span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="lucide lucide-arrow-left-from-line"
-              >
-                <path d="m9 6-6 6 6 6" />
-                <path d="M3 12h14" />
-                <path d="M21 19V5" />
-              </svg>
-            </span>
-            Dashboard
-          </button>
-        </div>
-      </div>
-      <div className="grid grid-cols-[55%_45%] h-auto w-full gap-16">
-        <div className="col-span-1 bg-white">
-          <div className=" h-auto ">
-            <div className="flex flex-col gap-4 items-center justify-evenly">
-              <div className="relative">
-                <img
-                  src={productImages[image]}
-                  alt=""
-                  className="w-full h-auto rounded-md relative"
-                />
-
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-chevron-left"
-                  className="text-white cursor-pointer h-12 w-12 absolute bottom-56 transition-transform duration-200 z-10 hover:scale-125"
-                  onClick={goToPrevious}
-                >
-                  <path d="m15 18-6-6 6-6" />
-                </svg>
-
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-chevron-right"
-                  className="text-white cursor-pointer h-12 w-12 absolute bottom-[220px] right-0 transition-transform duration-200 z-10 hover:scale-125"
-                  onClick={goToNext}
-                >
-                  <path d="m9 18 6-6-6-6" />
-                </svg>
-              </div>
-              <div className="grid grid-cols-4 gap-2 ">
-                <img
-                  src={productImages[0]}
-                  alt=""
-                  className="w-[150px] h-auto  cursor-pointer rounded-md "
-                  onClick={() => setImage(0)}
-                />
-                <img
-                  src={productImages[1]}
-                  alt=""
-                  className="w-[150px] h-auto cursor-pointer rounded-md"
-                  onClick={() => setImage(1)}
-                />
-                <img
-                  src={productImages[2]}
-                  alt=""
-                  className="w-[150px] h-auto cursor-pointer rounded-md"
-                  onClick={() => setImage(2)}
-                />
-                <img
-                  src={productImages[3]}
-                  alt=""
-                  className="w-[150px] h-auto  cursor-pointer rounded-md"
-                  onClick={() => setImage(3)}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-row justify-between items-start">
+    <div className="min-h-screen bg-gray-50">
+      <VenueHeader />
+      <main className="container mx-auto grid gap-6 px-4 py-6 lg:grid-cols-[1fr_400px] lg:gap-8 lg:px-6">
+        <div className="space-y-6">
+          <VenueGallery images={DEMO_IMAGES} />
+          <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-slate-700 font-bold text-4xl mb-1">
-                Cucrid Auditorium
-              </p>
-              <p className="text-slate-500  text-16 flex flex-row gap-1 align-center mb-1">
-                <span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-map-pin"
-                  >
-                    <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                </span>
-                Cucrid auditorium, 1st flooe cucrid
-              </p>
+              <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+                {data?.name}
+              </h1>
+              <div className="mt-2 flex items-center gap-2 text-gray-600">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 10c0 4.989-4 9-8 9s-8-4.011-8-9a8 8 0 0 1 16 0Z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                <span className="text-lg">{data?.capacity} seats</span>
+              </div>
             </div>
-            <div className="flex flex-row items-center">
-              <div className="text-slate-700 font-semibold text-4xl">$450</div>
-              <div className="text-slate-400 font-semibold text-xl">/hour</div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-gray-900">
+                {data?.hourly_rate}
+              </div>
+              <div className="text-sm text-gray-600">/hour</div>
             </div>
           </div>
-          <div className="flex flex-row">
-            {properties.map((property) => (
-              <div className=" mb-4 mr-4 items-center rounded-full px-2.5 py-0.5 text-sm text-red-500 font-semibold transition-colors  bg-rose-200  ">
-                {property}
-              </div>
+          <div className="flex flex-wrap gap-2">
+            {["Conference", "Events", "Meetings", "Workshops"].map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full bg-rose-100 px-3 py-1 text-sm font-medium text-rose-600"
+              >
+                {tag}
+              </span>
             ))}
           </div>
-          <div className="w-full h-auto rounded-lg bg-white mb-4 border border-1 border-slate-200 p-4">
-            <h1 className="text-slate-600 font-medium text-2xl mb-1">
-              Description
-            </h1>
-            <p className="text-slate-600 mb-1">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              lorem30
-            </p>
-            <button className="flex flex-row border text-sm  bg-rose-200 text-rose-600 py-0.5 px-2 items-center justify-center rounded-3xl">
-              Show more{" "}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="lucide lucide-arrow-down"
-              >
-                <path d="M12 5v14" />
-                <path d="m19 12-7 7-7-7" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="w-full h-auto rounded-lg bg-white border border-1 border-slate-200 p-4">
-            <h1 className="text-slate-600 font-medium text-2xl mb-2">
-              Facilities
-            </h1>
-            <div className="flex flex-row">
-              {facilities.map((facility) => (
-                <div className=" mb-4 mr-4 items-center rounded-full px-2.5 py-0.5 text-md text-slate-500 font-semibold transition-colors  bg-slate-200  ">
-                  {facility.text}
-                </div>
-              ))}
+          <div className="rounded-lg border border-gray-200 bg-white">
+            <div className="border-b border-gray-200 p-6">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Description
+              </h2>
             </div>
-            <button className="flex flex-row border text-sm  bg-rose-200 text-rose-600 py-0.5 px-2 items-center justify-center rounded-3xl">
-              Show more{" "}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="lucide lucide-arrow-down"
-              >
-                <path d="M12 5v14" />
-                <path d="m19 12-7 7-7-7" />
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div
-          className="col-span-1 
-          rounded-lg
-          bg-white
-          mb-4
-          border
-          border-1
-          border-slate-400
-          p-4
-          h-100%
-          "
-        >
-          <div className="w-full h-8 ">
-            <h1 className="text-slate-600 font-medium text-2xl mb-1">
-              Booking Request
-            </h1>
-            <div className="z-50 grid grid-cols-2 gap-4">
-              <DayPicker
-                mode="single"
-                selected={selectedDay} // Consumer cannot select
-                onSelect={setSelectedDay}
-                disabled={disabledDays}
-                modifiers={{ preselected: disabledDays }}
-                modifiersClassNames={{
-                  preselected: "bg-rose-400 text-rose-500 rounded-md border",
-                }}
-                className="p-3 w-full max-w-md "
-                classNames={{
-                  months:
-                    "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                  month: "space-y-4",
-                  caption: "flex justify-center pt-1 relative items-center",
-                  caption_label: "text-sm font-medium",
-                  nav: "space-x-1 flex items-center",
-                  nav_button:
-                    "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-                  nav_button_previous: "absolute left-1",
-                  nav_button_next: "absolute right-1",
-                  table: "w-full border-collapse space-y-1",
-                  head_row: "flex",
-                  head_cell:
-                    "text-rose-500 rounded-md w-9 font-normal text-[0.8rem]",
-                  row: "flex w-full mt-2",
-                  cell: "h-9 w-9 text-center text-sm p-0 relative",
-                  day: "h-9 w-9 p-0 font-normal",
-                  day_range_end: "day-range-end",
-                  day_selected:
-                    "bg-rose-900 rounded-md border text-rose-50 hover:bg-rose-900 hover:text-rose-50",
-                  day_today: "bg-rose-100 text-rose-900",
-                  day_outside: "text-rose-500",
-                  day_disabled: "text-rose-500 opacity-50",
-                  day_range_middle: "bg-rose-100 text-rose-900",
-                  day_hidden: "invisible",
-                }}
-              />
-              {selectedDay && (
-                <div className="mt-8 p-4 bg-blue-50 rounded-lg shadow-md w-full ">
-                  <h3 className="text-lg font-semibold text-rose-700 mb-2">
-                    You have picked:
-                  </h3>
-                  <p className="text-rose-600 text-xl font-bold">
-                    {selectedDay.toLocaleDateString()}
-                  </p>
-                  <p className="mt-4 text-rose-500">
-                    You can now proceed to checkout to finalize your booking.
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {selectedDay && (
-              <button className="w-full bg-rose-500 text-white rounded-md transition-bg duration-300 p-2 mt-4 hover:bg-rose-600">
-                Proceed to checkout
+            <div className="space-y-4 p-6">
+              <p className="text-gray-600">{data?.description}</p>
+              <button className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200">
+                Read more
               </button>
-            )}
+            </div>
+          </div>
+          <div className="rounded-lg border border-gray-200 bg-white">
+            <div className="border-b border-gray-200 p-6">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Facilities
+              </h2>
+            </div>
+            <div className="p-6">
+              <div className="grid gap-4 sm:grid-cols-2">
+                {data?.amenities.map((facility) => (
+                  <div
+                    key={facility}
+                    className="flex items-center gap-2 rounded-lg border border-gray-200 p-3"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-rose-600"
+                    >
+                      <path d="M5 12.55a11 11 0 0 1 14.08 0" />
+                      <path d="M1.42 9a16 16 0 0 1 21.16 0" />
+                      <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+                      <line x1="12" y1="20" x2="12" y2="20" />
+                    </svg>
+                    <span className="text-gray-700">{facility}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+        <div className="lg:sticky lg:top-6">
+          <VenueBooking price={data?.hourly_rate} id={data?.id} />
+        </div>
+      </main>
     </div>
   );
-};
-
-export default LocationDetail;
+}

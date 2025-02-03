@@ -8,10 +8,10 @@ import {
   Shield,
   Sparkles,
 } from "lucide-react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import dashboard from "../assets/pexels-pixabay-269140.jpg";
 import { FeatureCard } from "../components/ui/featureCard";
 import { TestimonialCard } from "../components/ui/testimonialCard";
-import dashboard from "../assets/pexels-pixabay-269140.jpg";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -230,10 +230,10 @@ export default function LandingPage() {
               <h3 className="font-semibold text-gray-900">Product</h3>
               <ul className="mt-4 space-y-2">
                 <li>
-                  <NavLink href="#features">Features</NavLink>
+                  <a href="#features">Features</a>
                 </li>
                 <li>
-                  <NavLink href="#pricing">Pricing</NavLink>
+                  <a href="#pricing">Pricing</a>
                 </li>
               </ul>
             </div>
@@ -241,10 +241,10 @@ export default function LandingPage() {
               <h3 className="font-semibold text-gray-900">Company</h3>
               <ul className="mt-4 space-y-2">
                 <li>
-                  <NavLink href="#about">About</NavLink>
+                  <a href="#about">About</a>
                 </li>
                 <li>
-                  <NavLink href="#contact">Contact</NavLink>
+                  <a href="#contact">Contact</a>
                 </li>
               </ul>
             </div>
@@ -252,17 +252,17 @@ export default function LandingPage() {
               <h3 className="font-semibold text-gray-900">Legal</h3>
               <ul className="mt-4 space-y-2">
                 <li>
-                  <NavLink href="#privacy">Privacy</NavLink>
+                  <a href="#privacy">Privacy</a>
                 </li>
                 <li>
-                  <NavLink href="#terms">Terms</NavLink>
+                  <a href="#terms">Terms</a>
                 </li>
               </ul>
             </div>
           </div>
           <div className="mt-8 border-t border-gray-200 pt-8 text-center">
             <p className="text-sm text-gray-600">
-              © {new Date().getFullYear()} ReserveMe. All rights reserved.
+              © 2025 ReserveMe. All rights reserved.
             </p>
           </div>
         </div>

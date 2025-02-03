@@ -16,7 +16,6 @@ export function LocationCard({ Space }: LocationCardProps) {
 
       <img
         src={dashboard || "/placeholder.svg"}
-        alt={name}
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 will-change-transform group-hover:scale-110"
       />
 

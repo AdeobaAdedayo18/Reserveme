@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import logo from "../assets/Black and Red Minimal Calendar with Clock Logo (2).svg";
 
 const VenueHeader = () => {

@@ -8,7 +8,7 @@ import { Space } from "../interfaces/Spaces";
 // console.log(access_token);
 
 export default function Showcase() {
-  const { data, isLoading, error } = useData<Space[]>("/spaces/");
+  const { data } = useData<Space[]>("/spaces/");
 
   return (
     <div className="min-h-screen bg-gray-50">

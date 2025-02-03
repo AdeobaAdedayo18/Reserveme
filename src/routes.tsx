@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import AdminDashboard from "./pages/AdminDashboard";
 import LandingPage from "./pages/LandingPage";
-import LocationDetail1 from "./pages/LocationDetail1";
+import LocationDetail1 from "./pages/LocationDetail";
 import LoginPage from "./pages/LoginPage";
 import Payment from "./pages/Payment";
 import ReceiptPage from "./pages/ReceiptPage";

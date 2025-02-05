@@ -1,17 +1,16 @@
 import LocationSkeleton from "@/components/LocationSkeleton";
-import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { LocationCard } from "../components/locationCard";
 import useData from "../hooks/useData";
 import { Space } from "../interfaces/Spaces";
-// import { getSession } from "../utils/session";
-
-// const access_token = await getSession();
-// console.log(access_token);
 
 export default function Showcase() {
   const { data, isLoading } = useData<Space[]>("/spaces/");
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
   // Filter locations based on search query
 
   const filteredData =
@@ -34,28 +33,37 @@ export default function Showcase() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 rounded-2xl border bg-white px-4 py-2 shadow-sm">
-            <Search className="h-5 w-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search venues..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full min-w-[200px] border-0 bg-transparent text-sm focus:outline-none focus:ring-0 "
-            />
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate("/dashboard")}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back to Dashboard
+          </Button>
+
+          {/* <div className="flex items-center gap-2 rounded-2xl border bg-white px-4 py-2 shadow-sm">
+              <Search className="h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search venues..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full min-w-[200px] border-0 bg-transparent text-sm focus:outline-none focus:ring-0 "
+              />
+            </div> */}
         </div>
 
-        {/* <div className="mb-6 flex items-center ">
-          <Search className="h-5 w-5 text-gray-400" />
+        <div className="mb-6 flex items-center ">
+          {/* <Search className="h-5 w-5 text-gray-400" /> */}
           <input
             type="text"
             placeholder="Search locations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-400px rounded-lg border border-gray-200 bg-white px-4 py-2 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent"
+            className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent"
           />
-        </div> */}
+        </div>
 
         {/* Grid */}
         {isLoading || data === null ? (

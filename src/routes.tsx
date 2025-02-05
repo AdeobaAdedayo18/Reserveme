@@ -8,6 +8,7 @@ import Payment from "./pages/Payment";
 import ShowCase from "./pages/ShowCase";
 import SignupPage from "./pages/SignupPage";
 import Test from "./pages/test";
+import UserDashboard from "./pages/UserDashboard";
 
 const Loading = () => (
   <Oval
@@ -47,6 +48,14 @@ export const router = createBrowserRouter([
       <Suspense fallback={<Loading />}>
         <AdminDashboard />
       </Suspense>
+    ),
+  },
+  {
+    path: "/dashboard",
+    element: (
+      // <Suspense fallback={<Loading />}>
+      <UserDashboard />
+      // </Suspense>
     ),
   },
   {

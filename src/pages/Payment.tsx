@@ -25,12 +25,16 @@ import {
 } from "date-fns";
 import { closePaymentModal, useFlutterwave } from "flutterwave-react-v3";
 import { ChevronLeft } from "lucide-react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 const Payment = () => {
   const navigate = useNavigate();
   const { spaceID } = useParams<{ spaceID: string }>();
   const { data } = useData<BookingPayment>(`/bookings/${spaceID}/payment`);
+  const [flutterLoading, setFlutterLoading] = useState(false);
+  console.log(flutterLoading);
+
   const {
     data: booking,
     // isLoading: bookingLoading,
@@ -129,6 +133,7 @@ const Payment = () => {
   };
 
   const Submit = async () => {
+    setFlutterLoading(true);
     handleFlutterPayment({
       callback: async (response) => {
         try {
@@ -199,7 +204,19 @@ const Payment = () => {
         });
       },
     });
+    setFlutterLoading(false);
   };
+  // if (flutterLoading) return;
+  // <Oval
+  //   height="60"
+  //   width="60"
+  //   // radius="9"
+  //   color="black"
+  //   secondaryColor="gray"
+  //   ariaLabel="three-dots-loading"
+  //   // wrapperStyle
+  //   wrapperClass="flex justify-center items-center h-screen"
+  // />;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50/50 to-white">
@@ -211,11 +228,9 @@ const Payment = () => {
             </div>
             <span className="text-lg font-semibold">ReserveMe</span>
           </a>
-          <Button variant="ghost" size="sm" asChild>
-            <a href="/location" className="gap-2">
-              <ChevronLeft className="h-4 w-4" />
-              Back to Venue
-            </a>
+          <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+            <ChevronLeft className="h-4 w-4" />
+            Back
           </Button>
         </div>
       </header>
@@ -300,7 +315,7 @@ const Payment = () => {
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
             <Button className="w-full" size="lg" onClick={Submit}>
-              Proceed to Payment
+              {!flutterLoading ? "Proceed to Payment" : "Loading..."}
             </Button>
             <p className="text-center text-sm text-muted-foreground">
               By proceeding, you agree to our Terms of Service and Privacy

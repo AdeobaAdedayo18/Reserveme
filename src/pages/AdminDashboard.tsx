@@ -7,6 +7,7 @@ import AdminBookingsPage from "./AdminBookingsPage";
 import AdminMainDashboard from "./AdminMainDashboard";
 import AdminVenuesPage from "./AdminVenues";
 import { toast } from "@/hooks/use-toast";
+import { Oval } from "react-loader-spinner";
 
 const navigation = [
   { name: "Dashboard", icon: Home, path: "/admin" },
@@ -22,40 +23,71 @@ export default function AdminDashboard() {
     role: string;
   } | null>(null);
   const navigate = useNavigate();
+  const [isChecking, setIsChecking] = useState(false);
   const [currentTab, setCurrentTab] = useState<string>("Dashboard");
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { data: recentBookings } = useAllBookings();
 
   useEffect(() => {
     const checkSession = async () => {
+      setIsChecking(true);
       const sessionData = await getSession();
       setSession(sessionData);
 
       if (sessionData?.role !== "admin") {
         navigate("/locations");
+        setTimeout(() => {
+          setIsChecking(false);
+        }, 1500);
+      } else {
+        setIsChecking(false);
+        if (window.innerWidth < 768) {
+          // 768px is typical tablet breakpoint
+          toast({
+            title: "Viewing on a small screen",
+            description:
+              "This page is better viewed on a bigger device or in landscape orientation",
+            duration: 5000,
+          });
+        }
       }
     };
 
     checkSession();
   }, [navigate]);
 
-  useEffect(() => {
-    if (window.innerWidth < 768) {
-      // 768px is typical tablet breakpoint
-      toast({
-        title: "Viewing on a small screen",
-        description:
-          "This page is better viewed on a bigger device or in landscape orientation",
-        duration: 5000,
-      });
-    }
-  }, []);
+  // useEffect(() => {
+
+  // }, []);
 
   if (!session) {
     return <div>Loading...</div>;
   }
+  // if (isChecking) {
+  //   <Oval
+  //     height="60"
+  //     width="60"
+  //     // radius="9"
+  //     color="black"
+  //     secondaryColor="gray"
+  //     ariaLabel="three-dots-loading"
+  //     // wrapperStyle
+  //     wrapperClass="flex justify-center items-center h-screen"
+  //   />;
+  // }
 
-  return (
+  return isChecking ? (
+    <Oval
+      height="60"
+      width="60"
+      // radius="9"
+      color="black"
+      secondaryColor="gray"
+      ariaLabel="three-dots-loading"
+      // wrapperStyle
+      wrapperClass="flex justify-center items-center h-screen"
+    />
+  ) : (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
       <div

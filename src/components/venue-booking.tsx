@@ -40,6 +40,8 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
   const { data: bookedSlots } = useData<SpaceBookingTimeSlot[]>(
     `/bookings/taken/${id}`
   );
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   // Calculate total amount whenever slots change
   useEffect(() => {
@@ -172,6 +174,7 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
             mode="single"
             selected={date}
             onSelect={setDate}
+            disabled={{ before: today }}
             // disabled={[...bookedTimeRanges].map((d) => new Date(d))}
             className="mx-auto"
             classNames={{

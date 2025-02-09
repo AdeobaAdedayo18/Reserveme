@@ -1,5 +1,6 @@
 import Cookies from 'js-cookie';
 import { axiosInstance } from './axios';
+const baseURL= "https://reserveme.up.railway.app"
 
 // Helper to check if a token is expired
 export const isTokenExpired = (token: string): boolean => {
@@ -47,7 +48,7 @@ interface response {
 export const refreshAccessToken = async () => {
     try {
         const response: response = await axiosInstance.post(
-            "http://127.0.0.1:8000/auth/refresh-token",
+            `${baseURL}/auth/refresh-token`,
             
         );
         return response.access_token;

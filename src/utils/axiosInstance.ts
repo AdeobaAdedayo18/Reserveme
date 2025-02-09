@@ -2,14 +2,17 @@ import axios from "axios";
 import { getSession, refreshAccessToken } from "./session";
 import Cookies from "js-cookie";
 import { logoutUser } from "./auth";
+// const baseURL= "https://reserveme.up.railway.app"
 
 // Axios instance setup
 const axiosInstance = axios.create({
     baseURL: "http://127.0.0.1:8000",
+    withCredentials: true,
     headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
     },
+    
 });
 
 // Token refresh queue
@@ -46,12 +49,14 @@ axiosInstance.interceptors.response.use(
             originalRequest._retry = true; // Custom flag to prevent infinite retries
 
             const session = await getSession();
-            if (session?.refresh_token) {
+            if (session?.access_token) {
                 if (!isRefreshing) {
                     isRefreshing = true;
                     try {
-                        const newAccessToken = await refreshAccessToken(session.refresh_token);
+
+                        const newAccessToken = await refreshAccessToken();
                         if (newAccessToken) {
+                            
                             Cookies.set("access_token", newAccessToken);
                             onTokenRefreshed(newAccessToken);
                             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;

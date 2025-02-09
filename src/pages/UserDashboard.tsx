@@ -5,7 +5,9 @@ import { Calendar, Clock, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function UserDashboard() {
-  const { data: bookings, isLoading } = useUserBookings();
+  const { data, isLoading } = useUserBookings();
+  const bookings = data?.data;
+
   const navigate = useNavigate();
 
   if (isLoading) {

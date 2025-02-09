@@ -18,7 +18,6 @@ const navigation = [
 export default function AdminDashboard() {
   const [session, setSession] = useState<{
     access_token: string;
-    refresh_token: string;
     user_id: string;
     role: string;
   } | null>(null);

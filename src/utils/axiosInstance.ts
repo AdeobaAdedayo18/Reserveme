@@ -2,11 +2,11 @@ import axios from "axios";
 import { getSession, refreshAccessToken } from "./session";
 import Cookies from "js-cookie";
 import { logoutUser } from "./auth";
-// const baseURL= "https://reserveme.up.railway.app"
+export const baseURL= "https://reserveme.up.railway.app"
 
 // Axios instance setup
 const axiosInstance = axios.create({
-    baseURL: "http://127.0.0.1:8000",
+    baseURL: baseURL,
     withCredentials: true,
     headers: {
         "Content-Type": "application/json",

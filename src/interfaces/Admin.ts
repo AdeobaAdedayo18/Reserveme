@@ -13,5 +13,18 @@ export interface AdminBookings{
     receipt_id: string | null,
     tx_ref: string,
     transaction_id: string | null
+    }
 
-}
+   
+    export interface AdminBookingsResponse {
+        data: AdminBookings[];
+        pagination: {
+            current_page: number;
+            next_page: number;
+            prev_page: number;
+            total_pages: number;
+            total_records: number;
+            next_request: string;
+            prev_request: string;
+        };
+    }

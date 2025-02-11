@@ -73,7 +73,9 @@ export default function Showcase() {
             {filteredData.length === 0 ? (
               <div className="col-span-full text-center py-12">
                 <p className="text-gray-500">
-                  No locations found matching your search.
+                  {data?.length === 0
+                    ? "No locations yet."
+                    : "No locations matching your search."}{" "}
                 </p>
               </div>
             ) : (

@@ -3,8 +3,8 @@ import LoginForm from "../components/LoginForm";
 
 const LoginPage = () => {
   return (
-    <div className="h-screen w-screen grid grid-cols-2 overflow-hidden">
-      <div>
+    <div className="h-screen w-screen grid md:grid-cols-2 lg:grid-cols-2 grid-cols-none overflow-hidden">
+      <div className="hidden md:block lg:block">
         <img
           className="h-screen w-full object-cover object-center"
           src={logo}

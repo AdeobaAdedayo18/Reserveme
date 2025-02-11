@@ -8,18 +8,13 @@ import type { Space } from "@/interfaces/Spaces";
 import { Building2, Calendar, DollarSign } from "lucide-react";
 
 const AdminMainDashboard = () => {
-  const { data: recentBookings } = useAllBookings();
+  const { data } = useAllBookings();
   const { data: Venues } = useData<Space[]>("/spaces/");
+  const recentBookings = data?.data;
 
-  let revenue = 0;
-
-  const CalculateRevenue = () => {
-    for (let i = 0; i < recentBookings?.length!; i++) {
-      revenue += recentBookings![i]?.total_cost;
-    }
-    return revenue;
-  };
-  revenue = CalculateRevenue();
+  const revenue =
+    recentBookings?.reduce((total, booking) => total + booking.total_cost, 0) ||
+    0;
 
   return (
     <main className="flex-1 p-4 sm:p-8">
@@ -39,7 +34,7 @@ const AdminMainDashboard = () => {
         />
         <StatCard
           title="Revenue"
-          value={"$" + revenue}
+          value={`$${revenue}`}
           icon={DollarSign}
           trend={{ value: 23, isPositive: true }}
         />
@@ -65,7 +60,7 @@ const AdminMainDashboard = () => {
             View all
           </button>
         </div>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
           <DataTable data={recentBookings} />
         </div>
       </div>

@@ -20,7 +20,7 @@ const ReceiptPage = () => {
           <h1 className="text-2xl font-bold text-gray-900">Booking Receipt</h1>
           <div className="flex gap-4">
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => navigate("dashboard")}
               className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800"
               aria-label="Back to Locations"
             >

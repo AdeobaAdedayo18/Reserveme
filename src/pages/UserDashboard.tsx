@@ -30,7 +30,7 @@ export default function UserDashboard() {
   );
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 overflow-hidden">
       <div className="flex-1">
         {/* Top Navigation */}
         <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-8">
@@ -42,13 +42,13 @@ export default function UserDashboard() {
             onClick={() => navigate("/locations")}
           >
             <Plus className="h-4 w-4" />
-            Create a new Booking
+            New Booking
           </Button>
         </header>
 
         <main className="p-8">
           {/* Stats Grid */}
-          <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mb-3 grid gap-6 grid-cols-2 sm:grid-cols-2 lg:grid-rows-2">
             <div className="rounded-lg border border-gray-200 bg-white p-6">
               <div className="flex items-center justify-between">
                 <Calendar className="h-5 w-5 text-gray-400" />
@@ -78,7 +78,7 @@ export default function UserDashboard() {
           </div>
 
           {/* Bookings Lists */}
-          <div className="space-y-8">
+          <div>
             {upcomingBookings && upcomingBookings.length > 0 && (
               <div>
                 <div className="mb-6">

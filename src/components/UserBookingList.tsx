@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -5,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { UserBooking } from "@/interfaces/User";
+import type { UserBooking } from "@/interfaces/User";
 import { Banknote, Calendar, Printer } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -48,7 +50,8 @@ export function UserBookingsList({ bookings }: UserBookingsListProps) {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-gray-200 bg-white">
+      {/* Desktop Table View */}
+      <div className="hidden rounded-lg border border-gray-200 bg-white sm:block">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -77,7 +80,6 @@ export function UserBookingsList({ bookings }: UserBookingsListProps) {
                     <div className="flex items-center">
                       <Calendar className="mr-2 h-5 w-5 text-gray-400" />
                       <span className="font-medium text-gray-900">
-                        {/* {booking.space_name} */}
                         HSL Studio
                       </span>
                     </div>
@@ -98,9 +100,9 @@ export function UserBookingsList({ bookings }: UserBookingsListProps) {
                       {booking.status}
                     </span>
                     {booking.status === "pending" && (
-                      <div className="mt-1 text-sm text-red-500">
+                      <div className="mt-1 text-xs text-red-500">
                         {calculateTimeRemaining(booking.created_at)} hours
-                        remaining before booking expires
+                        remaining
                       </div>
                     )}
                   </td>
@@ -123,61 +125,82 @@ export function UserBookingsList({ bookings }: UserBookingsListProps) {
         </div>
       </div>
 
+      {/* Mobile Card View */}
+      <div className="space-y-4 sm:hidden">
+        {paginatedBookings?.map((booking) => (
+          <div
+            key={booking.id}
+            className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+            onClick={() => setSelectedBooking(booking)}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Calendar className="h-5 w-5 text-gray-400" />
+                <span className="font-medium text-gray-900">HSL Studio</span>
+              </div>
+              <span
+                className={`inline-flex rounded-full px-2 py-1 text-xs font-medium
+                  ${
+                    booking.status === "confirmed"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-yellow-100 text-yellow-700"
+                  }
+                `}
+              >
+                {booking.status}
+              </span>
+            </div>
+            <div className="mt-3 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Date:</span>
+                <span className="text-gray-900">
+                  {new Date(booking.created_at).toLocaleDateString()}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Time:</span>
+                <span className="text-gray-900">
+                  {new Date(booking.created_at).toLocaleTimeString()}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Amount:</span>
+                <span className="text-gray-900">${booking.total_cost}</span>
+              </div>
+              {booking.status === "pending" && (
+                <div className="text-xs text-red-500">
+                  {calculateTimeRemaining(booking.created_at)} hours remaining
+                  before expiry
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
-          <div className="flex flex-1 justify-between sm:hidden">
+          <div className="flex flex-1 justify-between">
             <Button
               variant="outline"
+              size="sm"
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
             >
               Previous
             </Button>
+            <span className="text-sm text-gray-700">
+              Page {currentPage} of {totalPages}
+            </span>
             <Button
               variant="outline"
+              size="sm"
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
             >
               Next
             </Button>
-          </div>
-          <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm text-gray-700">
-                Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
-                <span className="font-medium">
-                  {Math.min(startIndex + itemsPerPage, bookings?.length || 0)}
-                </span>{" "}
-                of <span className="font-medium">{bookings?.length}</span>{" "}
-                results
-              </p>
-            </div>
-            <div>
-              <nav
-                className="isolate inline-flex -space-x-px rounded-md shadow-sm"
-                aria-label="Pagination"
-              >
-                <Button
-                  variant="outline"
-                  className="rounded-l-md"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  className="rounded-r-md"
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
-                  }
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                </Button>
-              </nav>
-            </div>
           </div>
         </div>
       )}
@@ -196,10 +219,7 @@ export function UserBookingsList({ bookings }: UserBookingsListProps) {
               <div className="grid gap-4">
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-gray-500">Venue</p>
-                  <p className="text-sm">
-                    {/* {selectedBooking.space_name} */}
-                    HSL Stufio
-                  </p>
+                  <p className="text-sm">HSL Studio</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-gray-500">

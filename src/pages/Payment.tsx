@@ -33,7 +33,6 @@ const Payment = () => {
   const { spaceID } = useParams<{ spaceID: string }>();
   const { data } = useData<BookingPayment>(`/bookings/${spaceID}/payment`);
   const [flutterLoading, setFlutterLoading] = useState(false);
-  console.log(flutterLoading);
 
   const {
     data: booking,
@@ -239,7 +238,7 @@ const Payment = () => {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Confirm Your Booking</CardTitle>
             <CardDescription>
-              Please provide your details to complete the booking
+              Please check the details of your booking then confirm payment
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">

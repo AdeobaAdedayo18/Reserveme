@@ -1,30 +1,39 @@
 import BookingDetailsSidebar from "@/components/BookingDetailPage";
-import type { AdminBookings } from "@/interfaces/Admin";
+import { usePage } from "@/hooks/useAdminData";
+import type { AdminBookings, AdminBookingsResponse } from "@/interfaces/Admin";
 import { useState } from "react";
 
 interface AdminBookingsPageProps {
-  data: AdminBookings[] | null;
+  data: AdminBookingsResponse | null;
 }
 
 const AdminBookingsPage = ({ data }: AdminBookingsPageProps) => {
+  var bookings = data?.data;
+  const pagination = data?.pagination;
   const itemsPerPage = 5;
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage] = useState(pagination?.current_page);
   const [selectedBooking, setSelectedBooking] = useState<AdminBookings | null>(
     null
   );
+
   const [searchQuery, setSearchQuery] = useState("");
+  const GetPage = async (pageReq: string) => {
+    const { data } = await usePage(pageReq);
+    bookings = data?.data;
+  };
   // Filter locations based on search query
 
-  const totalPages = data ? Math.ceil(data.length / itemsPerPage) : 1;
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedData = data?.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = data ? Math.ceil(bookings?.length! / itemsPerPage) : 1;
+  const startIndex = (currentPage! - 1) * itemsPerPage;
+  const paginatedData = bookings?.slice(startIndex, startIndex + itemsPerPage);
   const filteredData =
-    data?.filter(
+    bookings?.filter(
       (booking) =>
         booking.purpose.toLowerCase().includes(searchQuery.toLowerCase()) ||
         booking.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
         booking.receipt_id?.toLowerCase().includes(searchQuery.toLowerCase())
     ) || [];
+  console.log(bookings);
 
   return (
     <div className="w-full p-4 sm:p-8">
@@ -64,7 +73,9 @@ const AdminBookingsPage = ({ data }: AdminBookingsPageProps) => {
               {filteredData.length === 0 ? (
                 <div className="col-span-full text-center py-12">
                   <p className="text-gray-500">
-                    No bookings matching your search.
+                    {bookings?.length === 0
+                      ? "No bookings yet."
+                      : "No bookings matching your search."}
                   </p>
                 </div>
               ) : (
@@ -158,19 +169,17 @@ const AdminBookingsPage = ({ data }: AdminBookingsPageProps) => {
       {searchQuery === "" && totalPages > 1 && (
         <div className="mt-4 flex justify-center space-x-2">
           <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            onClick={() => GetPage(pagination?.prev_request!)}
             disabled={currentPage === 1}
             className="rounded-md bg-gray-200 px-4 py-2 text-sm disabled:opacity-50"
           >
             Previous
           </button>
           <span className="px-4 py-2 text-sm">
-            Page {currentPage} of {totalPages}
+            Page {currentPage} of {pagination?.total_pages}
           </span>
           <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
+            onClick={() => GetPage(pagination?.next_request!)}
             disabled={currentPage === totalPages}
             className="rounded-md bg-gray-200 px-4 py-2 text-sm disabled:opacity-50"
           >

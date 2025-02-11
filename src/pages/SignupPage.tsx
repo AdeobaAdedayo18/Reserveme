@@ -4,7 +4,7 @@ import calendarlogo from "../assets/Black and Red Minimal Calendar with Clock Lo
 
 const SignupPage = () => {
   return (
-    <div className="h-screen w-screen grid grid-cols-2 overflow-hidden">
+    <div className="h-screen w-screen grid md:grid-cols-2 lg:grid-cols-2 grid-cols-none overflow-hidden">
       <div className="h-96 object-center align-item justify-item">
         <div className="flex justify-end mx-4 align-center">
           <div className="flex justify-center items-center space-x-1">
@@ -14,7 +14,7 @@ const SignupPage = () => {
         </div>
         <SignupForm></SignupForm>
       </div>
-      <div>
+      <div className="hidden md:block lg:block">
         <img
           className="h-screen w-full object-cover object-center"
           src={logo}

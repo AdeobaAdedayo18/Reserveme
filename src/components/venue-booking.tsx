@@ -268,7 +268,7 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
               ))}
               <div className="mt-2 flex justify-between border-t border-neutral-200 pt-2 font-medium">
                 <span>Total:</span>
-                <span>${totalAmount}</span>
+                <span>${isNaN(totalAmount) ? 0 : totalAmount}</span>
               </div>
             </div>
           </div>
@@ -286,7 +286,12 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
           </div>
           <button
             onClick={handleBooking}
-            className="w-full rounded-lg bg-rose-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-rose-700 hover:shadow-md"
+            disabled={totalAmount === 0 || isNaN(totalAmount)}
+            className={`w-full rounded-lg px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all ${
+              totalAmount === 0 || isNaN(totalAmount)
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-rose-600 hover:bg-rose-700 hover:shadow-md"
+            }`}
           >
             {user ? "Book Now" : "Login to Book"}
           </button>

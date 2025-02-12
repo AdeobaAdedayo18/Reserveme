@@ -173,8 +173,8 @@ const AddVenueModal = ({ isOpen, onClose, refetch }: AddVenueModalProps) => {
               <label className="block text-sm font-medium text-gray-700">
                 Location
               </label>
-              <input
-                type="text"
+              <textarea
+                rows={2}
                 {...register("location")}
                 className="mt-1 block w-full rounded-lg border border-gray-200 px-4 py-2 focus:border-[#B32406] focus:outline-none focus:ring-1 focus:ring-[#B32406]"
                 placeholder="Enter venue location"

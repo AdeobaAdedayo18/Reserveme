@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { toast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import calendarlogo from "../assets/Black and Red Minimal Calendar with Clock Logo (2).svg";
 import { loginUser } from "../utils/auth";
@@ -25,8 +26,10 @@ const LoginForm = () => {
   } = useForm<FormData>({ resolver: zodResolver(schema) });
   const params = new URLSearchParams(location.search);
   const callbackUrl = params.get("callbackUrl") || "/locations";
+  const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async (data: any) => {
+    setIsLoading(true);
     reset();
     try {
       const response = await loginUser(data);
@@ -55,6 +58,7 @@ const LoginForm = () => {
     } catch (error) {
       toast({ title: "Authentication failed", variant: "destructive" });
     }
+    setIsLoading(false);
   };
 
   return (
@@ -124,10 +128,11 @@ const LoginForm = () => {
             </div>
 
             <button
+              disabled={isLoading}
               type="submit"
               className="w-full bg-[#B32406] text-white py-2  rounded-md hover:bg-transparent hover:border hover:border-rose-500 hover:text-[#B32406]"
             >
-              Sign in
+              {isLoading ? "Loading..." : "Sign in"}
             </button>
           </form>
 

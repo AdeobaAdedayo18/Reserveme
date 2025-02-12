@@ -242,41 +242,6 @@ const Payment = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-center block">
-                  Full Name
-                </Label>
-                <Input
-                  id="name"
-                  placeholder="Enter your full name"
-                  className="text-center"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-center block">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  className="text-center"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-center block">
-                  Phone Number
-                </Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="Enter your phone number"
-                  className="text-center"
-                />
-              </div>
-            </div> */}
-            {/* <Separator className="my-6" /> */}
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Venue</span>

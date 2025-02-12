@@ -18,6 +18,7 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
   const location = useLocation();
   const { toast } = useToast();
   const [user, setUser] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const queryParams = new URLSearchParams(location.search);
 
   const [date, setDate] = useState<Date | undefined>(
@@ -115,6 +116,7 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
       purpose,
     };
 
+    setLoading(true);
     try {
       const session = await getSession();
       if (session?.user_id) {
@@ -134,6 +136,7 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
     } catch (error) {
       toast({ title: "Booking failed", variant: "destructive" });
     }
+    setLoading(false);
   };
 
   const combineDateTime = (date: Date, time: string) => {
@@ -293,7 +296,7 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
                 : "bg-rose-600 hover:bg-rose-700 hover:shadow-md"
             }`}
           >
-            {user ? "Book Now" : "Login to Book"}
+            {loading ? "Loading..." : user ? "Book Now" : "Login to Book"}
           </button>
         </div>
       </div>

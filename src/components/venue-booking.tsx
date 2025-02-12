@@ -4,7 +4,7 @@ import { Booking } from "@/interfaces/Booking";
 import { format, isWithinInterval, parseISO } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import { DayPicker } from "react-day-picker";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import useData from "../hooks/useData";
 import { SpaceBookingTimeSlot } from "../interfaces/Spaces";
 import { getSession } from "@/utils/session";
@@ -37,8 +37,10 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
   }, []);
 
   const { addData } = useAdd<Booking, any>("/bookings/");
+  const { spaceId } = useParams<{ spaceId: string }>();
+
   const { data: bookedSlots } = useData<SpaceBookingTimeSlot[]>(
-    `/bookings/taken/${id}`
+    `/bookings/taken/${spaceId}`
   );
   const today = new Date();
   today.setHours(0, 0, 0, 0);

@@ -111,7 +111,11 @@ export default function AdminVenuesPage() {
               <Building2 className="h-8 w-8 text-gray-400" />
               <span className="font-medium text-gray-900">{venue.name}</span>
             </div>
-            <div className="text-gray-500">{venue.location}</div>
+            <div className="text-gray-500">
+              {venue.location.length > 20
+                ? `${venue.location.substring(0, 20)}...`
+                : venue.location}
+            </div>
             <div className="text-gray-500">{venue.capacity} people</div>
             <div className="text-gray-900">${venue.hourly_rate}</div>
             <div>

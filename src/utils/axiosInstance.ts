@@ -2,7 +2,8 @@ import axios from "axios";
 import { getSession, refreshAccessToken } from "./session";
 import Cookies from "js-cookie";
 import { logoutUser } from "./auth";
-export const baseURL= "https://reserveme.up.railway.app"
+import { baseURL } from "./constants";
+
 
 // Axios instance setup
 const axiosInstance = axios.create({

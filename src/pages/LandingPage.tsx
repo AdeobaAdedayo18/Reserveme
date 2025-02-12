@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import dashboard from "../assets/pexels-pixabay-269140.jpg";
 import { FeatureCard } from "../components/ui/featureCard";
 import { TestimonialCard } from "../components/ui/testimonialCard";
+import calendarlogo from "../assets/Black and Red Minimal Calendar with Clock Logo (2).svg";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -21,13 +22,9 @@ export default function LandingPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2">
-              <div className="rounded-xl bg-gradient-to-br from-rose-500 to-rose-700 p-2">
-                <Sparkles className="h-6 w-6 text-white" />
-              </div>
-              <span className="text-xl font-semibold text-gray-900">
-                ReserveMe
-              </span>
+            <div className="flex justify-center items-center space-x-1">
+              <img className="h-10" src={calendarlogo} alt="Calendar Logo" />
+              <p className="text-3xl font-bold text-rose-600">ReserveMe</p>
             </div>
             <div className="hidden gap-6 md:flex">
               <a href="#features">Features</a>

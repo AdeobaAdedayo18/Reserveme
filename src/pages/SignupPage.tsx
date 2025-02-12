@@ -8,8 +8,8 @@ const SignupPage = () => {
       <div className="h-96 object-center align-item justify-item">
         <div className="flex justify-end mx-4 align-center">
           <div className="flex justify-center items-center space-x-1">
-            <p className="text-3xl font-bold text-[#B32406]">Reserve Me</p>
             <img className="h-16" src={calendarlogo} alt="Calendar Logo" />
+            <p className="text-3xl font-bold text-[#B32406]">ReserveMe</p>
           </div>
         </div>
         <SignupForm></SignupForm>

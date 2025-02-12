@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 import { axiosInstance } from './axios';
-const baseURL= "https://reserveme.up.railway.app"
+import { baseURL } from './constants';
 
 // Helper to check if a token is expired
 export const isTokenExpired = (token: string): boolean => {

@@ -61,7 +61,7 @@ const LoginForm = () => {
     <>
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
         <div className="flex justify-center items-center space-x-1">
-          <p className="text-3xl font-bold text-[#B32406]">Reserve Me</p>
+          <p className="text-3xl font-bold text-rose-600">ReserveMe</p>
           <img className="h-16" src={calendarlogo} alt="Calendar Logo" />
         </div>
         <div className="w-full max-w-md bg-white  p-8">

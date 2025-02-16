@@ -1,14 +1,41 @@
 import { Button } from "@/components/ui/button";
 import { UserBookingsList } from "@/components/UserBookingList";
 import { useUserBookings } from "@/hooks/useUserData";
+import { getSession } from "@/utils/session";
 import { Calendar, Clock, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Oval } from "react-loader-spinner";
 import { useNavigate } from "react-router-dom";
 
 export default function UserDashboard() {
+  const [session, setSession] = useState<{
+    access_token: string;
+    user_id: string;
+    role: string;
+  } | null>(null);
   const { data, isLoading } = useUserBookings();
   const bookings = data?.data;
-
+  const [isChecking, setIsChecking] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      setIsChecking(true);
+      const sessionData = await getSession();
+      setSession(sessionData);
+
+      if (sessionData?.role !== "admin") {
+        navigate("/locations");
+        setTimeout(() => {
+          setIsChecking(false);
+        }, 1500);
+      } else {
+        setIsChecking(false);
+      }
+    };
+
+    checkSession();
+  }, [navigate]);
 
   if (isLoading) {
     return (
@@ -28,8 +55,29 @@ export default function UserDashboard() {
   const pastBookings = bookings?.filter(
     (booking) => new Date(booking.created_at) <= new Date()
   );
+  if (!session) {
+    return (
+      <Oval
+        height="60"
+        width="60"
+        color="black"
+        secondaryColor="gray"
+        ariaLabel="loading"
+        wrapperClass="flex justify-center items-center h-screen"
+      />
+    );
+  }
 
-  return (
+  return isChecking ? (
+    <Oval
+      height="60"
+      width="60"
+      color="black"
+      secondaryColor="gray"
+      ariaLabel="loading"
+      wrapperClass="flex justify-center items-center h-screen"
+    />
+  ) : (
     <div className="flex min-h-screen bg-gray-50 overflow-hidden">
       <div className="flex-1">
         {/* Top Navigation */}

@@ -38,7 +38,7 @@ const Payment = () => {
     data: booking,
     // isLoading: bookingLoading,
     // error: bookingError,
-  } = useData<BookingResponse>(`/bookings/${spaceID}/`);
+  } = useData<BookingResponse>(`/bookings/${spaceID}`);
   const { addData } = useAdd<
     BookingPaymentResponse,
     BookingResponsePaymentConfirmed

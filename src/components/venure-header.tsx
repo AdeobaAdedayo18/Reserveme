@@ -13,7 +13,7 @@ const VenueHeader = () => {
       </div> */}
       <div
         className="flex items-center gap-2 cursor-pointer"
-        onClick={() => navigate("/dashboard")}
+        onClick={() => navigate("/")}
       >
         <div>
           <img src={logo} alt="" className="w-10 h-10" />
@@ -21,7 +21,7 @@ const VenueHeader = () => {
         <span className="text-lg font-semibold text-gray-900">ReserveMe</span>
       </div>
       <div
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/dashboard")}
         className="inline-flex items-center cursor-pointer gap-2 rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
       >
         <svg

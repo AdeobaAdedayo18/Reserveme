@@ -15,7 +15,8 @@ export default function LocationDetail() {
   const { spaceId } = useParams<{ spaceId: string }>();
   // const { time } = useParams<{ spaceId: string }>();
 
-  const { data } = useData<Space>(`/spaces/${spaceId}/`);
+  const { data } = useData<Space>(`/spaces/${spaceId}`);
+  console.log(data);
 
   return (
     <div className="min-h-screen bg-gray-50">

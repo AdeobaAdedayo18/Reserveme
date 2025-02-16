@@ -13,7 +13,7 @@ const VenueHeader = () => {
       </div> */}
       <div
         className="flex items-center gap-2 cursor-pointer"
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/dashboard")}
       >
         <div>
           <img src={logo} alt="" className="w-10 h-10" />

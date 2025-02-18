@@ -2,7 +2,7 @@ import AddVenueModal from "@/components/AddvenueModal";
 import VenueModal from "@/components/EditVenueModal";
 import { VenueFormData } from "@/components/VenueForm";
 import { toast } from "@/hooks/use-toast";
-import useData from "@/hooks/useData";
+import useFetchData from "@/hooks/useFetchData";
 import { Space } from "@/interfaces/Spaces";
 import axiosInstance from "@/utils/axiosInstance";
 import { Building2, Plus, Search } from "lucide-react";
@@ -19,7 +19,7 @@ export default function AdminVenuesPage() {
     mode: "add",
   });
 
-  const { data: venues, error, refetch } = useData<Space[]>("/spaces/");
+  const { data: venues, error, refetch } = useFetchData<Space[]>("/spaces/");
   console.log(venues);
   const handleEdit = (venue: Space) => {
     setModalState({

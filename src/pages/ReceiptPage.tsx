@@ -1,15 +1,15 @@
-import useData from "@/hooks/useData";
+import ReceiptPDF from "@/components/ReceiptPDF";
+import useFetchData from "@/hooks/useFetchData";
 import { BookingPaymentReceipt } from "@/interfaces/Booking";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 import { Download } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import ReceiptPDF from "@/components/ReceiptPDF";
 
 const ReceiptPage = () => {
   const { bookingID } = useParams<{ bookingID: string }>();
   const navigate = useNavigate();
 
-  const { data: orderDetails } = useData<BookingPaymentReceipt>(
+  const { data: orderDetails } = useFetchData<BookingPaymentReceipt>(
     `/bookings/${bookingID}/receipt`
   );
 

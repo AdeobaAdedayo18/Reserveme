@@ -40,7 +40,8 @@ const AMENITY_OPTIONS = [
 
 const AddVenueModal = ({ isOpen, onClose, refetch }: AddVenueModalProps) => {
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
-  const { addData } = useAdd<Space, any>("/spaces/");
+  // const { addData } = useAdd<Space, any>("/spaces/");
+  const { mutate, isPending } = useAdd<Space, any>();
 
   const {
     register,
@@ -55,21 +56,31 @@ const AddVenueModal = ({ isOpen, onClose, refetch }: AddVenueModalProps) => {
     },
   });
 
-  const onSubmit = async (data: VenueFormData) => {
+  const onSubmit = (data: VenueFormData) => {
     console.log("Form submitted with:", data);
-    const res = await addData(data);
-    if (res.id) {
-      toast({
-        title: "New Venue Created",
-        description: "Venue added successfully",
-      });
-    } else {
-      toast({ title: "Failed to add venue", variant: "destructive" });
-    }
 
-    reset();
-    refetch();
-    onClose();
+    mutate(
+      { endpoint: "/spaces", postData: data },
+      {
+        onSuccess: () => {
+          toast({
+            title: "New Venue Created",
+            description: "Venue added successfully",
+          });
+
+          reset(); // Reset form
+          refetch(); // Refresh data if needed
+          onClose(); // Close modal/dialog
+        },
+        onError: (error) => {
+          toast({
+            title: "Failed to add venue",
+            description: error.message || "Something went wrong",
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
   const toggleAmenity = (amenity: string) => {
@@ -236,7 +247,7 @@ const AddVenueModal = ({ isOpen, onClose, refetch }: AddVenueModalProps) => {
               type="submit"
               className="rounded-lg bg-[#B32406] px-4 py-2 text-sm font-medium text-white hover:bg-[#922005]"
             >
-              Add Venue
+              {isPending ? "Adding..." : "Add Venue"}
             </button>
           </div>
         </form>

@@ -1,9 +1,9 @@
 import { AdminBookingsResponse } from "@/interfaces/Admin";
-import useData from "./useData";
+import useFetchData from "./useFetchData";
 
 export const useAllBookings = () => {
-    return useData<AdminBookingsResponse>(`/bookings/admin/all`);
+    return useFetchData<AdminBookingsResponse>(`/bookings/admin/all`);
  };
 export const usePage = (endpoint: string | undefined) => {
-    return useData<AdminBookingsResponse>(endpoint!);
+    return useFetchData<AdminBookingsResponse>(endpoint!);
  };

@@ -1,3 +1,4 @@
+import useFetchData from "@/hooks/useFetchData";
 import { useParams } from "react-router-dom";
 import pic1 from "../assets/pexels-daiangan-102129.jpg";
 import pic2 from "../assets/pexels-kaip-996329.jpg";
@@ -6,7 +7,6 @@ import pic4 from "../assets/pexels-solliefoto-298863.jpg";
 import VenueBooking from "../components/venue-booking";
 import VenueGallery from "../components/venue-gallery";
 import VenueHeader from "../components/venure-header";
-import useData from "../hooks/useData";
 import { Space } from "../interfaces/Spaces";
 
 const DEMO_IMAGES = [pic1, pic2, pic3, pic4];
@@ -15,9 +15,7 @@ export default function LocationDetail() {
   const { spaceId } = useParams<{ spaceId: string }>();
   // const { time } = useParams<{ spaceId: string }>();
 
-  const { data } = useData<Space>(`/spaces/${spaceId}`);
-  console.log(data);
-
+  const { data } = useFetchData<Space>(`/spaces/${spaceId}`);
   return (
     <div className="min-h-screen bg-gray-50">
       <VenueHeader />

@@ -3,13 +3,13 @@ import DataTable from "@/components/DataTable";
 import { RevenueAnalyticsChart } from "@/components/RevenueAnalytics";
 import StatCard from "@/components/statCard";
 import { useAllBookings } from "@/hooks/useAdminData";
-import useData from "@/hooks/useData";
+import useFetchData from "@/hooks/useFetchData";
 import type { Space } from "@/interfaces/Spaces";
 import { Building2, Calendar, DollarSign } from "lucide-react";
 
 const AdminMainDashboard = () => {
   const { data } = useAllBookings();
-  const { data: Venues } = useData<Space[]>("/spaces/");
+  const { data: Venues } = useFetchData<Space[]>("/spaces/");
   const recentBookings = data?.data;
 
   const revenue =

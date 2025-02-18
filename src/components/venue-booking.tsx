@@ -1,13 +1,13 @@
 import { useToast } from "@/hooks/use-toast";
 import useAdd from "@/hooks/useAdd";
+import useFetchData from "@/hooks/useFetchData";
 import { Booking } from "@/interfaces/Booking";
+import { getSession } from "@/utils/session";
 import { format, isWithinInterval, parseISO } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import useData from "../hooks/useData";
 import { SpaceBookingTimeSlot } from "../interfaces/Spaces";
-import { getSession } from "@/utils/session";
 interface VenueBookingProps {
   price: number | undefined;
   id: string | undefined;
@@ -37,10 +37,10 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
     checkSession();
   }, []);
 
-  const { addData } = useAdd<Booking, any>("/bookings/");
+  const { mutateAsync } = useAdd<Booking, any>();
   const { spaceId } = useParams<{ spaceId: string }>();
 
-  const { data: bookedSlots } = useData<SpaceBookingTimeSlot[]>(
+  const { data: bookedSlots } = useFetchData<SpaceBookingTimeSlot[]>(
     `/bookings/taken/${spaceId}`
   );
   const today = new Date();
@@ -120,7 +120,10 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
     try {
       const session = await getSession();
       if (session?.user_id) {
-        const response = await addData(bookingPayload);
+        const response = await mutateAsync({
+          postData: bookingPayload,
+          endpoint: "/bookings",
+        });
         navigate(`/payment-confirmation/${response.id}`);
       } else {
         const params = new URLSearchParams({

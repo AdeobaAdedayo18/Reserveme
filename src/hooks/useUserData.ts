@@ -1,6 +1,6 @@
 import { UserBookingOriginal } from "@/interfaces/User";
-import useData from "./useData";
+import useFetchData from "./useFetchData";
 
 export const useUserBookings = () => {
-    return useData<UserBookingOriginal>(`/bookings`);
+    return useFetchData<UserBookingOriginal>(`/bookings`);
  };

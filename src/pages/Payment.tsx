@@ -10,7 +10,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
 import useAdd from "@/hooks/useAdd";
-import useData from "@/hooks/useData";
+import useFetchData from "@/hooks/useFetchData";
 import {
   BookingPayment,
   BookingPaymentResponse,
@@ -31,18 +31,18 @@ import { useNavigate, useParams } from "react-router-dom";
 const Payment = () => {
   const navigate = useNavigate();
   const { spaceID } = useParams<{ spaceID: string }>();
-  const { data } = useData<BookingPayment>(`/bookings/${spaceID}/payment`);
+  const { data } = useFetchData<BookingPayment>(`/bookings/${spaceID}/payment`);
   const [flutterLoading, setFlutterLoading] = useState(false);
 
   const {
     data: booking,
     // isLoading: bookingLoading,
     // error: bookingError,
-  } = useData<BookingResponse>(`/bookings/${spaceID}`);
-  const { addData } = useAdd<
+  } = useFetchData<BookingResponse>(`/bookings/${spaceID}`);
+  const { mutateAsync } = useAdd<
     BookingPaymentResponse,
     BookingResponsePaymentConfirmed
-  >(`/bookings/${spaceID}/confirm`);
+  >();
 
   const getBookingDetails = (booking: BookingResponse) => {
     const startDate = parseISO(booking.start_time);
@@ -115,9 +115,12 @@ const Payment = () => {
     tx_ref: string
   ) => {
     try {
-      const res = await addData({
-        tx_ref: tx_ref,
-        transaction_id: transaction_id,
+      const res = await mutateAsync({
+        endpoint: `/bookings/${spaceID}/confirm`,
+        postData: {
+          tx_ref: tx_ref,
+          transaction_id: transaction_id,
+        },
       });
 
       return res?.status === "confirmed";

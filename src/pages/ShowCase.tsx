@@ -1,14 +1,14 @@
 import LocationSkeleton from "@/components/LocationSkeleton";
 import { Button } from "@/components/ui/button";
+import useFetchData from "@/hooks/useFetchData";
 import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LocationCard } from "../components/locationCard";
-import useData from "../hooks/useData";
 import { Space } from "../interfaces/Spaces";
 
 export default function Showcase() {
-  const { data, isLoading } = useData<Space[]>("/spaces/");
+  const { data, isLoading } = useFetchData<Space[]>("/spaces");
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   // Filter locations based on search query

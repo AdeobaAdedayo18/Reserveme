@@ -27,7 +27,16 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
   const [purpose, setPurpose] = useState(queryParams.get("purpose") || "");
   const [selectedSlots, setSelectedSlots] = useState<
     { start: string; end: string }[]
-  >([]);
+  >(() => {
+    const slotsFromUrl = queryParams.get("selectedSlots");
+    return slotsFromUrl
+      ? slotsFromUrl.split(",").map((slot) => {
+          const [start, end] = slot.split("-");
+          return { start, end };
+        })
+      : [];
+  });
+
   const [totalAmount, setTotalAmount] = useState(0);
   useEffect(() => {
     const checkSession = async () => {
@@ -50,17 +59,14 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
   useEffect(() => {
     setTotalAmount(selectedSlots.length * price!);
   }, [selectedSlots, price]);
-
-  // Generate time slots
-  const TIME_SLOTS = useMemo(
-    () =>
-      Array.from({ length: 12 }, (_, i) => ({
-        start: `${i + 8}:00`,
-        end: `${i + 9}:00`,
-        available: true,
-      })),
-    []
-  );
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const newDate = queryParams.get("date")
+      ? parseISO(queryParams.get("date")!)
+      : undefined;
+    setDate(newDate);
+    setPurpose(queryParams.get("purpose") || "");
+  }, [location.search]);
 
   // Get booked time ranges for selected date
   const bookedTimeRanges = useMemo(() => {
@@ -77,6 +83,47 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
           end.toDateString() === date.toDateString()
       );
   }, [date, bookedSlots]);
+
+  // Modified slot reconstruction useEffect
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const urlStartTime = queryParams.get("startTime");
+    const urlEndTime = queryParams.get("endTime");
+
+    if (urlStartTime && urlEndTime && date) {
+      const startHour = parseInt(urlStartTime.split(":")[0], 10);
+      const endHour = parseInt(urlEndTime.split(":")[0], 10);
+
+      // Generate all slots between start and end times
+      const slots = [];
+      for (let hour = startHour; hour < endHour; hour++) {
+        const slot = {
+          start: `${hour}:00`,
+          end: `${hour + 1}:00`,
+        };
+        // Only add if slot exists in TIME_SLOTS and is available
+        if (
+          TIME_SLOTS.some(
+            (ts) => ts.start === slot.start && isSlotAvailable(slot)
+          )
+        ) {
+          slots.push(slot);
+        }
+      }
+      setSelectedSlots(slots);
+    }
+  }, [date, location.search, bookedTimeRanges]); // Include bookedTimeRanges
+
+  // Generate time slots
+  const TIME_SLOTS = useMemo(
+    () =>
+      Array.from({ length: 12 }, (_, i) => ({
+        start: `${i + 8}:00`,
+        end: `${i + 9}:00`,
+        available: true,
+      })),
+    []
+  );
 
   // Check if time slot is available
   const isSlotAvailable = (slot: { start: string; end: string }) => {
@@ -126,11 +173,15 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
         });
         navigate(`/payment-confirmation/${response.id}`);
       } else {
+        // Convert selectedSlots to a comma-separated string
+        const slotParams = selectedSlots
+          .map((s) => `${s.start}-${s.end}`)
+          .join(",");
+
         const params = new URLSearchParams({
           purpose,
           date: date.toISOString(),
-          startTime,
-          endTime,
+          selectedSlots: slotParams, // Include all slots
         });
         navigate(
           `/login?${params.toString()}&callbackUrl=${location.pathname}`

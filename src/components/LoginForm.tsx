@@ -30,30 +30,28 @@ const LoginForm = () => {
 
   const onSubmit = async (data: any) => {
     setIsLoading(true);
-    reset();
     try {
       const response = await loginUser(data);
       if (response.success === false) {
         toast({ title: "Authentication failed", variant: "destructive" });
       } else {
+        // Preserve ALL booking parameters including selectedSlots
         const bookingParams = new URLSearchParams({
           purpose: params.get("purpose") || "",
           date: params.get("date") || "",
+          selectedSlots: params.get("selectedSlots") || "",
           startTime: params.get("startTime") || "",
           endTime: params.get("endTime") || "",
         });
+
         if ((await response).role === "admin") {
           navigate("/admin");
         } else {
-          // navigate("/location")
-          // if (bookingParams.toString() === "purpose=&date=&startTime=&endTime=") {
+          // Pass ALL parameters to callback URL
           navigate(`${callbackUrl}?${bookingParams.toString()}`);
-          // } else {
-          // navigate("/locations");
-          // }
         }
-
         toast({ title: "Authentication Successful" });
+        reset();
       }
     } catch (error) {
       toast({ title: "Authentication failed", variant: "destructive" });

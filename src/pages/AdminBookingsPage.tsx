@@ -4,7 +4,7 @@ import type { AdminBookings, AdminBookingsResponse } from "@/interfaces/Admin";
 import { useState } from "react";
 
 interface AdminBookingsPageProps {
-  data: AdminBookingsResponse | null;
+  data: AdminBookingsResponse | undefined;
 }
 
 const AdminBookingsPage = ({ data }: AdminBookingsPageProps) => {

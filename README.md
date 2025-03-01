@@ -8,6 +8,7 @@ Reserveme is a project designed to help users make reservations easily and effic
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Frontend Overview](#frontend-overview)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -44,6 +45,52 @@ $ npm run dev
 ## Usage
 
 Once the application is running, you can access it at `http://localhost:5173`. From there, you can create an account, browse services, and make reservations.
+
+## Frontend Overview
+
+The Purple City Reserveme frontend is built with modern React libraries, providing a seamless way to interact with the reservation system. It integrates with a backend API to manage users, bookings, notifications, and real-time availability.
+
+### Key Frontend Features
+
+- Interactive UI for space listings and bookings
+- Real-time availability checks via API calls
+- Responsive design optimized for various devices
+- JWT-based secure authentication handling
+
+### Tech Stack
+
+- React + TypeScript
+- React Router for routing
+- React Hook Form + zod for form validation
+- React Query for API communication
+- Tailwind CSS for styling
+
+### Installation Steps
+
+```bash
+# Clone this repository
+git clone https://github.com/AdeobaAdedayo18/Reserveme
+
+# Go into the repository
+cd Reserveme
+
+# Install frontend dependencies
+npm install
+# or
+yarn
+
+# Configure the .env file for API endpoints if needed
+
+# Start the frontend locally
+npm run dev
+# or
+yarn dev
+```
+
+### Usage
+
+• Navigate to http://localhost:5173.  
+• Log in or register to start making bookings.
 
 ## License
 

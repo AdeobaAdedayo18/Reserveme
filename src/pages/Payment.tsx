@@ -31,7 +31,9 @@ import { useNavigate, useParams } from "react-router-dom";
 const Payment = () => {
   const navigate = useNavigate();
   const { spaceID } = useParams<{ spaceID: string }>();
-  const { data } = useFetchData<BookingPayment>(`/bookings/${spaceID}/payment`);
+  const { data } = useFetchData<BookingPayment>(
+    `/bookings/${spaceID}/payment/`
+  );
   const [flutterLoading, setFlutterLoading] = useState(false);
 
   const {

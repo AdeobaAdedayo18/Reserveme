@@ -50,7 +50,7 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
   const { spaceId } = useParams<{ spaceId: string }>();
 
   const { data: bookedSlots } = useFetchData<SpaceBookingTimeSlot[]>(
-    `/bookings/taken/${spaceId}`
+    `/bookings/taken/${spaceId}/`
   );
   const today = new Date();
   today.setHours(0, 0, 0, 0);

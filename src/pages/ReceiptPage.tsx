@@ -10,7 +10,7 @@ const ReceiptPage = () => {
   const navigate = useNavigate();
 
   const { data: orderDetails } = useFetchData<BookingPaymentReceipt>(
-    `/bookings/${bookingID}/receipt`
+    `/bookings/${bookingID}/receipt/`
   );
 
   return (

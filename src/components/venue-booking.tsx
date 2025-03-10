@@ -169,7 +169,7 @@ const VenueBooking = ({ price, id }: VenueBookingProps) => {
       if (session?.user_id) {
         const response = await mutateAsync({
           postData: bookingPayload,
-          endpoint: "/bookings",
+          endpoint: "/bookings/",
         });
         navigate(`/payment-confirmation/${response.id}`);
       } else {

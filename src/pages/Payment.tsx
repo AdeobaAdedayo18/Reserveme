@@ -118,7 +118,7 @@ const Payment = () => {
   ) => {
     try {
       const res = await mutateAsync({
-        endpoint: `/bookings/${spaceID}/confirm`,
+        endpoint: `/bookings/${spaceID}/confirm/`,
         postData: {
           tx_ref: tx_ref,
           transaction_id: transaction_id,

@@ -9,7 +9,7 @@ import { Building2, Calendar, DollarSign } from "lucide-react";
 
 const AdminMainDashboard = () => {
   const { data } = useAllBookings();
-  const { data: Venues } = useFetchData<Space[]>("/spaces/");
+  const { data: Venues } = useFetchData<Space[]>("/spaces");
   const recentBookings = data?.data;
 
   const revenue =

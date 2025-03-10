@@ -8,7 +8,7 @@ import { LocationCard } from "../components/locationCard";
 import { Space } from "../interfaces/Spaces";
 
 export default function Showcase() {
-  const { data, isLoading } = useFetchData<Space[]>("/spaces/");
+  const { data, isLoading } = useFetchData<Space[]>("/spaces");
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   // Filter locations based on search query

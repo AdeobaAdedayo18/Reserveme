@@ -15,7 +15,7 @@ export default function LocationDetail() {
   const { spaceId } = useParams<{ spaceId: string }>();
   // const { time } = useParams<{ spaceId: string }>();
 
-  const { data } = useFetchData<Space>(`/spaces/${spaceId}/`);
+  const { data } = useFetchData<Space>(`/spaces/${spaceId}`);
   return (
     <div className="min-h-screen bg-gray-50">
       <VenueHeader />

@@ -19,7 +19,7 @@ export default function AdminVenuesPage() {
     mode: "add",
   });
 
-  const { data: venues, error, refetch } = useFetchData<Space[]>("/spaces/");
+  const { data: venues, error, refetch } = useFetchData<Space[]>("/spaces");
   console.log(venues);
   const handleEdit = (venue: Space) => {
     setModalState({
